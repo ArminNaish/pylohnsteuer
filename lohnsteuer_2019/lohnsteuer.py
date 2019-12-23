@@ -1,421 +1,426 @@
-import math
-
 from decimal import Decimal, ROUND_UP, ROUND_DOWN
+from . import parameters
 
-
-def calculate_wage_tax(wage_tax_inputs, wage_tax_internals, wage_tax_outputs):
+def calculate_wage_tax(params):
     ''' Programmablaufplan für die Berechnung der Lohnsteuer 2019 '''
+    inputs = {**parameters.wage_tax_inputs, **params}
+    internals = parameters.wage_tax_internals.copy()
+    outputs = parameters.wage_tax_outputs.copy()
+
     # todo: add validation
     # todo: add comments to code to understand it
-    mpara(wage_tax_inputs, wage_tax_internals)
-    mre4jl(wage_tax_inputs, wage_tax_internals)
-    wage_tax_internals['VBEZBSO'] = 0
-    wage_tax_internals['KENNVMT'] = 0
-    mre4(wage_tax_inputs, wage_tax_internals)
-    mre4abz(wage_tax_inputs, wage_tax_internals)
-    mberech(wage_tax_inputs, wage_tax_internals, wage_tax_outputs)
+
+    mpara(inputs, internals)
+    mre4jl(inputs, internals)
+    internals['VBEZBSO'] = 0
+    internals['KENNVMT'] = 0
+    mre4(inputs, internals)
+    mre4abz(inputs, internals)
+    mberech(inputs, internals, outputs)
     # todo: implement msonst and mvmt features
-    # msonst(wage_tax_inputs, wage_tax_internals, wage_tax_outputs)
-    # mvmt(wage_tax_inputs, wage_tax_internals, wage_tax_outputs)
+    # msonst(inputs, internals, outputs)
+    # mvmt(inputs, internals, outputs)
+
+    return outputs
 
 
-def mpara(wage_tax_inputs, wage_tax_internals):
+def mpara(inputs, internals):
     ''' Zuweisung von Werten für bestimmte Sozialversicherungsparameter '''
     # Parameter Rentenversicherung
-    if wage_tax_inputs['KRV'] < 2:
-        if wage_tax_inputs['KRV'] == 0:
-            wage_tax_internals['BBGRV'] = Decimal(80400)
+    if inputs['KRV'] < 2:
+        if inputs['KRV'] == 0:
+            internals['BBGRV'] = Decimal(80400)
         else:
-            wage_tax_internals['BBGRV'] = Decimal(73800)
-        wage_tax_internals['RVSATZAN'] = Decimal(0.093)
-        wage_tax_internals['TBSVORV'] = Decimal(0.76)
+            internals['BBGRV'] = Decimal(73800)
+        internals['RVSATZAN'] = Decimal(0.093)
+        internals['TBSVORV'] = Decimal(0.76)
 
     # Parameter Krankenversicherung/Pflegeversicherung
-    wage_tax_internals['BBGKVPV'] = Decimal(54450)
-    wage_tax_internals['KVSATZAN'] = (wage_tax_inputs['KVZ'] / 2 / 100) + Decimal(0.07)
-    wage_tax_internals['KVSATZAG'] = Decimal(0.0045) + Decimal(0.07)
-    if wage_tax_inputs['PVS'] == 1:
-        wage_tax_internals['PVSATZAN'] = Decimal(0.02025)
-        wage_tax_internals['PVSATZAG'] = Decimal(0.01025)
+    internals['BBGKVPV'] = Decimal(54450)
+    internals['KVSATZAN'] = (inputs['KVZ'] / 2 / 100) + Decimal(0.07)
+    internals['KVSATZAG'] = Decimal(0.0045) + Decimal(0.07)
+    if inputs['PVS'] == 1:
+        internals['PVSATZAN'] = Decimal(0.02025)
+        internals['PVSATZAG'] = Decimal(0.01025)
     else:
-        wage_tax_internals['PVSATZAN'] = Decimal(0.01525)
-        wage_tax_internals['PVSATZAG'] = Decimal(0.01525)
-    if wage_tax_inputs['PVZ'] == 1:
-        wage_tax_internals['PVSATZAN'] = wage_tax_internals['PVSATZAN'] + Decimal(0.0025)
+        internals['PVSATZAN'] = Decimal(0.01525)
+        internals['PVSATZAG'] = Decimal(0.01525)
+    if inputs['PVZ'] == 1:
+        internals['PVSATZAN'] = internals['PVSATZAN'] + Decimal(0.0025)
 
     # Grenzwerte für die Steuerklassen V / VI
-    wage_tax_internals['W1STKL5'] = Decimal(10635)
-    wage_tax_internals['W2STKL5'] = Decimal(27980)
-    wage_tax_internals['W3STKL5'] = Decimal(212261)
+    internals['W1STKL5'] = Decimal(10635)
+    internals['W2STKL5'] = Decimal(27980)
+    internals['W3STKL5'] = Decimal(212261)
 
     # Grundfreibetrag
-    wage_tax_internals['GFB'] = Decimal(9168)
+    internals['GFB'] = Decimal(9168)
 
     # Freigrenze SolZ
-    wage_tax_internals['SOLZFREI'] = Decimal(972)
+    internals['SOLZFREI'] = Decimal(972)
 
 
-def mre4jl(wage_tax_inputs, wage_tax_internals):
+def mre4jl(inputs, internals):
     ''' Ermittlung des Jahresarbeitslohns und der Freibeträge '''
-    if wage_tax_inputs['LZZ'] == 1:
-        wage_tax_internals['ZRE4J'] = Decimal(wage_tax_inputs['RE4'] / 100)
-        wage_tax_internals['ZVBEZJ'] = Decimal(wage_tax_inputs['VBEZ'] / 100)
-        wage_tax_internals['JLFREIB'] = Decimal(wage_tax_inputs['LZZFREIB'] / 100)
-        wage_tax_internals['JLHINZU'] = Decimal(wage_tax_inputs['LZZHINZU'] / 100)
+    if inputs['LZZ'] == 1:
+        internals['ZRE4J'] = Decimal(inputs['RE4'] / 100)
+        internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] / 100)
+        internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] / 100)
+        internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] / 100)
     else:
-        if wage_tax_inputs['LZZ'] == 2:
-            wage_tax_internals['ZRE4J'] = Decimal(wage_tax_inputs['RE4'] * 12 / 100)
-            wage_tax_internals['ZVBEZJ'] = Decimal(wage_tax_inputs['VBEZ'] * 12 / 100)
-            wage_tax_internals['JLFREIB'] = Decimal(wage_tax_inputs['LZZFREIB'] * 12 / 100)
-            wage_tax_internals['JLHINZU'] = Decimal(wage_tax_inputs['LZZHINZU'] * 12 / 100)
+        if inputs['LZZ'] == 2:
+            internals['ZRE4J'] = Decimal(inputs['RE4'] * 12 / 100)
+            internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * 12 / 100)
+            internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * 12 / 100)
+            internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * 12 / 100)
         else:
-            if wage_tax_inputs['LZZ'] == 3:
-                wage_tax_internals['ZRE4J'] = Decimal(wage_tax_inputs['RE4'] * 360 / 7 / 100)
-                wage_tax_internals['ZVBEZJ'] = Decimal(wage_tax_inputs['VBEZ'] * 360 / 7 / 100)
-                wage_tax_internals['JLFREIB'] = Decimal(wage_tax_inputs['LZZFREIB'] * 360 / 7 / 100)
-                wage_tax_internals['JLHINZU'] = Decimal(wage_tax_inputs['LZZHINZU'] * 360 / 7 / 100)
+            if inputs['LZZ'] == 3:
+                internals['ZRE4J'] = Decimal(inputs['RE4'] * 360 / 7 / 100)
+                internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * 360 / 7 / 100)
+                internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * 360 / 7 / 100)
+                internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * 360 / 7 / 100)
             else:
-                wage_tax_internals['ZRE4J'] = Decimal(wage_tax_inputs['RE4'] * 360 / 100)
-                wage_tax_internals['ZVBEZJ'] = Decimal(wage_tax_inputs['VBEZ'] * 360 / 100)
-                wage_tax_internals['JLFREIB'] = Decimal(wage_tax_inputs['LZZFREIB'] * 360 / 100)
-                wage_tax_internals['JLHINZU'] = Decimal(wage_tax_inputs['LZZHINZU'] * 360 / 100)
+                internals['ZRE4J'] = Decimal(inputs['RE4'] * 360 / 100)
+                internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * 360 / 100)
+                internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * 360 / 100)
+                internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * 360 / 100)
 
-    if wage_tax_inputs['AF'] == 0:
-        wage_tax_inputs['F'] = Decimal(1)
+    if inputs['AF'] == 0:
+        inputs['F'] = Decimal(1)
 
 
-def mre4(wage_tax_inputs, wage_tax_internals):
+def mre4(inputs, internals):
     ''' Ermittlung der Freibeträge für Versorgungsbezüge, Altersentlastungsbetrag '''
-    if wage_tax_internals['ZVBEZJ'] == 0:
-        wage_tax_internals['FVBZ'] = 0
-        wage_tax_internals['FVB'] = 0
-        wage_tax_internals['FVBZSO'] = 0
-        wage_tax_internals['FVBSO'] = 0
+    if internals['ZVBEZJ'] == 0:
+        internals['FVBZ'] = 0
+        internals['FVB'] = 0
+        internals['FVBZSO'] = 0
+        internals['FVBSO'] = 0
     else:
-        if wage_tax_inputs['VJAHR'] < 2006:
-            wage_tax_internals['J'] = 1
+        if inputs['VJAHR'] < 2006:
+            internals['J'] = 1
         else:
-            if wage_tax_inputs['VJAHR'] < 2040:
-                wage_tax_internals['J'] = wage_tax_inputs['VJAHR'] - 2004
+            if inputs['VJAHR'] < 2040:
+                internals['J'] = inputs['VJAHR'] - 2004
             else:
-                wage_tax_internals['J'] = 36
+                internals['J'] = 36
 
-        if wage_tax_inputs['LZZ'] == 1:
-            wage_tax_internals['VBEZB'] = wage_tax_inputs['VBEZM'] * wage_tax_inputs['ZMVB'] + wage_tax_inputs['VBEZS']
-            wage_tax_internals['HFVB'] = wage_tax_inputs['TAB2'][wage_tax_internals['J']] / 12 * wage_tax_inputs['ZMVB']
-            wage_tax_internals['FVBZ'] = Decimal((wage_tax_inputs['TAB3'][wage_tax_internals['J']] / 12 * wage_tax_inputs['ZMVB'])).quantize(Decimal('1.'), rounding=ROUND_UP)
+        if inputs['LZZ'] == 1:
+            internals['VBEZB'] = inputs['VBEZM'] * inputs['ZMVB'] + inputs['VBEZS']
+            internals['HFVB'] = inputs['TAB2'][internals['J']] / 12 * inputs['ZMVB']
+            internals['FVBZ'] = Decimal((inputs['TAB3'][internals['J']] / 12 * inputs['ZMVB'])).quantize(Decimal('1.'), rounding=ROUND_UP)
         else:
-            wage_tax_internals['VBEZB'] = wage_tax_inputs['VBEZM'] * 12 + wage_tax_inputs['VBEZS']
-            wage_tax_internals['HFVB'] = wage_tax_inputs['TAB2'][wage_tax_internals['J']]
-            wage_tax_internals['FVBZ'] = wage_tax_inputs['TAB3'][wage_tax_internals['J']]
+            internals['VBEZB'] = inputs['VBEZM'] * 12 + inputs['VBEZS']
+            internals['HFVB'] = inputs['TAB2'][internals['J']]
+            internals['FVBZ'] = inputs['TAB3'][internals['J']]
 
-        wage_tax_internals['FVB'] = Decimal(wage_tax_internals['VBEZB'] * wage_tax_inputs['TAB1'][wage_tax_internals['J']] / 100).quantize(Decimal('1.00'), rounding=ROUND_UP)
-        if wage_tax_internals['FVB'] > wage_tax_internals['HFVB']:
-            wage_tax_internals['FVB'] = wage_tax_internals['HFVB']
-        if wage_tax_internals['FVB'] > wage_tax_internals['ZVBEZJ']:
-            wage_tax_internals['FVB'] = wage_tax_internals['ZVBEZJ']
+        internals['FVB'] = Decimal(internals['VBEZB'] * inputs['TAB1'][internals['J']] / 100).quantize(Decimal('1.00'), rounding=ROUND_UP)
+        if internals['FVB'] > internals['HFVB']:
+            internals['FVB'] = internals['HFVB']
+        if internals['FVB'] > internals['ZVBEZJ']:
+            internals['FVB'] = internals['ZVBEZJ']
 
-        wage_tax_internals['FVBSO'] = Decimal(wage_tax_internals['FVB'] + wage_tax_internals['VBEZBSO'] * wage_tax_inputs['TAB1'][wage_tax_internals['J']] / 100).quantize(Decimal('1.00'), rounding=ROUND_UP)
-        if wage_tax_internals['FVBSO'] > wage_tax_inputs['TAB2'][wage_tax_internals['J']]:
-            wage_tax_internals['FVBSO'] = wage_tax_inputs['TAB2'][wage_tax_internals['J']]
+        internals['FVBSO'] = Decimal(internals['FVB'] + internals['VBEZBSO'] * inputs['TAB1'][internals['J']] / 100).quantize(Decimal('1.00'), rounding=ROUND_UP)
+        if internals['FVBSO'] > inputs['TAB2'][internals['J']]:
+            internals['FVBSO'] = inputs['TAB2'][internals['J']]
 
-        wage_tax_internals['HFVBZSO'] = (wage_tax_internals['VBEZB'] + wage_tax_internals['VBEZBSO']) / 100 - wage_tax_internals['FVBSO']
-        wage_tax_internals['FVBZSO'] = Decimal(wage_tax_internals['FVBZ'] + wage_tax_internals['VBEZBSO'] / 100).quantize(Decimal('1.'), rounding=ROUND_UP)
-        if wage_tax_internals['FVBZSO'] > wage_tax_internals['HFVBZSO']:
-            wage_tax_internals['FVBZSO'] = Decimal(wage_tax_internals['HFVBZSO']).quantize(Decimal('1.'), rounding=ROUND_UP)
-        if wage_tax_internals['FVBZSO'] > wage_tax_inputs['TAB3'][wage_tax_internals['J']]:
-            wage_tax_internals['FVBZSO'] = wage_tax_inputs['TAB3'][wage_tax_internals['J']]
+        internals['HFVBZSO'] = (internals['VBEZB'] + internals['VBEZBSO']) / 100 - internals['FVBSO']
+        internals['FVBZSO'] = Decimal(internals['FVBZ'] + internals['VBEZBSO'] / 100).quantize(Decimal('1.'), rounding=ROUND_UP)
+        if internals['FVBZSO'] > internals['HFVBZSO']:
+            internals['FVBZSO'] = Decimal(internals['HFVBZSO']).quantize(Decimal('1.'), rounding=ROUND_UP)
+        if internals['FVBZSO'] > inputs['TAB3'][internals['J']]:
+            internals['FVBZSO'] = inputs['TAB3'][internals['J']]
 
-        wage_tax_internals['HFVBZ'] = wage_tax_internals['VBEZB'] / 100 - wage_tax_internals['FVB']
-        if wage_tax_internals['FVBZ'] > wage_tax_internals['HFVBZ']:
-            wage_tax_internals['FVBZ'] = Decimal(wage_tax_internals['HFVBZ']).quantize(Decimal('1.'), rounding=ROUND_UP)
+        internals['HFVBZ'] = internals['VBEZB'] / 100 - internals['FVB']
+        if internals['FVBZ'] > internals['HFVBZ']:
+            internals['FVBZ'] = Decimal(internals['HFVBZ']).quantize(Decimal('1.'), rounding=ROUND_UP)
 
-    mre4alte(wage_tax_inputs, wage_tax_internals)
+    mre4alte(inputs, internals)
 
 
-def mre4alte(wage_tax_inputs, wage_tax_internals):
+def mre4alte(inputs, internals):
     ''' Ermittlung des Altersentlastungsbetrags '''
-    if wage_tax_inputs['ALTER1'] == 0:
-        wage_tax_internals['ALTE'] = 0
+    if inputs['ALTER1'] == 0:
+        internals['ALTE'] = 0
     else:
-        if wage_tax_inputs['AJAHR'] < 2006:
-            wage_tax_internals['K'] = 1
+        if inputs['AJAHR'] < 2006:
+            internals['K'] = 1
         else:
-            if wage_tax_inputs['AJAHR'] < 2040:
-                wage_tax_internals['K'] = wage_tax_inputs['AJAHR'] - 2004
+            if inputs['AJAHR'] < 2040:
+                internals['K'] = inputs['AJAHR'] - 2004
             else:
-                wage_tax_internals['K'] = 36
+                internals['K'] = 36
 
-        wage_tax_internals['BMG'] = wage_tax_internals['ZRE4J'] - wage_tax_internals['ZVBEZJ']
-        wage_tax_internals['ALTE'] = Decimal(wage_tax_internals['BMG'] * wage_tax_inputs['TAB4'][wage_tax_internals['K']]).quantize(Decimal('1.00'), rounding=ROUND_UP)
-        wage_tax_internals['HBALTE'] = wage_tax_inputs['TAB5'][wage_tax_internals['K']]
-        if wage_tax_internals['ALTE'] > wage_tax_internals['HBALTE']:
-            wage_tax_internals['ALTE'] = wage_tax_internals['HBALTE']
+        internals['BMG'] = internals['ZRE4J'] - internals['ZVBEZJ']
+        internals['ALTE'] = Decimal(internals['BMG'] * inputs['TAB4'][internals['K']]).quantize(Decimal('1.00'), rounding=ROUND_UP)
+        internals['HBALTE'] = inputs['TAB5'][internals['K']]
+        if internals['ALTE'] > internals['HBALTE']:
+            internals['ALTE'] = internals['HBALTE']
 
 
-def mre4abz(wage_tax_inputs, wage_tax_internals):
+def mre4abz(inputs, internals):
     ''' Ermittlung des Jahresarbeitslohns nach Abzug der Freibeträge '''
-    wage_tax_internals['ZRE4'] = wage_tax_internals['ZRE4J'] - wage_tax_internals['FVB'] - wage_tax_internals['ALTE'] - wage_tax_internals['JLFREIB'] + wage_tax_internals['JLHINZU']
-    if wage_tax_internals['ZRE4'] < 0:
-        wage_tax_internals['ZRE4'] = 0
+    internals['ZRE4'] = internals['ZRE4J'] - internals['FVB'] - internals['ALTE'] - internals['JLFREIB'] + internals['JLHINZU']
+    if internals['ZRE4'] < 0:
+        internals['ZRE4'] = 0
 
-    wage_tax_internals['ZRE4VP'] = wage_tax_internals['ZRE4J']
-    if wage_tax_internals['KENNVMT'] == 2:
-        wage_tax_internals['ZRE4VP'] = wage_tax_internals['ZRE4VP'] - wage_tax_inputs['ENTSCH'] / 100
+    internals['ZRE4VP'] = internals['ZRE4J']
+    if internals['KENNVMT'] == 2:
+        internals['ZRE4VP'] = internals['ZRE4VP'] - inputs['ENTSCH'] / 100
 
-    wage_tax_internals['ZVBEZ'] = wage_tax_internals['ZVBEZJ'] - wage_tax_internals['FVB']
-    if wage_tax_internals['ZVBEZ'] < 0:
-        wage_tax_internals['ZVBEZ'] = 0
+    internals['ZVBEZ'] = internals['ZVBEZJ'] - internals['FVB']
+    if internals['ZVBEZ'] < 0:
+        internals['ZVBEZ'] = 0
 
 
-def mberech(wage_tax_inputs, wage_tax_internals, wage_tax_outputs):
+def mberech(inputs, internals, outputs):
     ''' Berechnung für laufende Lohnzahlungszeiträume '''
-    mztabfb(wage_tax_inputs, wage_tax_internals)
-    wage_tax_outputs['VFRB'] = (wage_tax_internals['ANP'] + wage_tax_internals['FVB'] + wage_tax_internals['FVBZ']) * 100
-    mlstjahr(wage_tax_inputs, wage_tax_internals)
-    wage_tax_outputs['WVFRB'] = (wage_tax_internals['ZVE'] - wage_tax_internals['GFB']) * 100
-    if wage_tax_outputs['WVFRB'] < 0:
-        wage_tax_outputs['WVFRB'] = 0
-    wage_tax_internals['LSTJAHR'] = wage_tax_internals['ST'] * wage_tax_inputs['F']
-    uplstlzz(wage_tax_inputs, wage_tax_internals, wage_tax_outputs)
-    upvkvlzz(wage_tax_inputs, wage_tax_internals, wage_tax_outputs)
-    if wage_tax_inputs['ZKF'] > 0:
-        wage_tax_internals['ZTABFB'] = wage_tax_internals['ZTABFB'] + wage_tax_internals['KFB']
-        mre4abz(wage_tax_inputs, wage_tax_internals)
-        mlstjahr(wage_tax_inputs, wage_tax_internals)
-        wage_tax_internals['JBMG'] = wage_tax_internals['ST'] * wage_tax_internals['F']
+    mztabfb(inputs, internals)
+    outputs['VFRB'] = (internals['ANP'] + internals['FVB'] + internals['FVBZ']) * 100
+    mlstjahr(inputs, internals)
+    outputs['WVFRB'] = (internals['ZVE'] - internals['GFB']) * 100
+    if outputs['WVFRB'] < 0:
+        outputs['WVFRB'] = 0
+    internals['LSTJAHR'] = internals['ST'] * inputs['F']
+    uplstlzz(inputs, internals, outputs)
+    upvkvlzz(inputs, internals, outputs)
+    if inputs['ZKF'] > 0:
+        internals['ZTABFB'] = internals['ZTABFB'] + internals['KFB']
+        mre4abz(inputs, internals)
+        mlstjahr(inputs, internals)
+        internals['JBMG'] = internals['ST'] * internals['F']
     else:
-        wage_tax_internals['JBMG'] = wage_tax_internals['LSTJAHR']
-    msolz(wage_tax_inputs, wage_tax_internals, wage_tax_outputs)
+        internals['JBMG'] = internals['LSTJAHR']
+    msolz(inputs, internals, outputs)
 
 
-def mztabfb(wage_tax_inputs, wage_tax_internals):
+def mztabfb(inputs, internals):
     ''' Ermittlung der festen Tabellenfreibeträge '''
-    wage_tax_internals['ANP'] = 0
-    if wage_tax_internals['ZVBEZ'] >= 0:
-        if wage_tax_internals['ZVBEZ'] < wage_tax_internals['FVBZ']:
-            wage_tax_internals['FVBZ'] = wage_tax_internals['ZVBEZ']
+    internals['ANP'] = 0
+    if internals['ZVBEZ'] >= 0:
+        if internals['ZVBEZ'] < internals['FVBZ']:
+            internals['FVBZ'] = internals['ZVBEZ']
 
-    if wage_tax_inputs['STKL'] < 6:
-        if wage_tax_internals['ZVBEZ'] > 0:
-            if (wage_tax_internals['ZVBEZ'] - wage_tax_internals['FVBZ']) < 102:
-                wage_tax_internals['ANP'] = Decimal(wage_tax_internals['ZVBEZ'] - wage_tax_internals['FVBZ']).quantize(Decimal('1.'), rounding=ROUND_UP)
+    if inputs['STKL'] < 6:
+        if internals['ZVBEZ'] > 0:
+            if (internals['ZVBEZ'] - internals['FVBZ']) < 102:
+                internals['ANP'] = Decimal(internals['ZVBEZ'] - internals['FVBZ']).quantize(Decimal('1.'), rounding=ROUND_UP)
             else:
-                wage_tax_internals['ANP'] = Decimal(102)
+                internals['ANP'] = Decimal(102)
     else:
-        wage_tax_internals['FVBZ'] = 0
-        wage_tax_internals['FVBZSO'] = 0
+        internals['FVBZ'] = 0
+        internals['FVBZSO'] = 0
 
-    if wage_tax_inputs['STKL'] < 6:
-        if wage_tax_internals['ZRE4'] > wage_tax_internals['ZVBEZ']:
-            if (wage_tax_internals['ZRE4'] - wage_tax_internals['ZVBEZ']) < 1000:
-                wage_tax_internals['ANP'] = Decimal(wage_tax_internals['ANP'] + wage_tax_internals['ZRE4'] - wage_tax_internals['ZVBEZ']).quantize(Decimal('1.'), rounding=ROUND_UP)
+    if inputs['STKL'] < 6:
+        if internals['ZRE4'] > internals['ZVBEZ']:
+            if (internals['ZRE4'] - internals['ZVBEZ']) < 1000:
+                internals['ANP'] = Decimal(internals['ANP'] + internals['ZRE4'] - internals['ZVBEZ']).quantize(Decimal('1.'), rounding=ROUND_UP)
             else:
-                wage_tax_internals['ANP'] = wage_tax_internals['ANP'] + Decimal(1000)
+                internals['ANP'] = internals['ANP'] + Decimal(1000)
 
-    wage_tax_internals['KZTAB'] = 1
+    internals['KZTAB'] = 1
 
-    if wage_tax_inputs['STKL'] == 1:
-        wage_tax_internals['SAP'] = 36
-        wage_tax_internals['KFB'] = wage_tax_inputs['ZKF'] * 7620
-    elif wage_tax_inputs['STKL'] == 2:
-        wage_tax_internals['EFA'] = 1908
-        wage_tax_internals['SAP'] = 36
-        wage_tax_internals['KFB'] = wage_tax_inputs['ZKF'] * 7620
-    elif wage_tax_inputs['STKL'] == 3:
-        wage_tax_internals['KZTAB'] = 2
-        wage_tax_internals['SAP'] = 36
-        wage_tax_internals['KFB'] = wage_tax_inputs['ZKF'] * 7620
-    elif wage_tax_inputs['STKL'] == 4:
-        wage_tax_internals['SAP'] = 36
-        wage_tax_internals['KFB'] = wage_tax_inputs['ZKF'] * 3810
-    elif wage_tax_inputs['STKL'] == 5:
-        wage_tax_internals['SAP'] = 36
-        wage_tax_internals['KFB'] = 0
+    if inputs['STKL'] == 1:
+        internals['SAP'] = 36
+        internals['KFB'] = inputs['ZKF'] * 7620
+    elif inputs['STKL'] == 2:
+        internals['EFA'] = 1908
+        internals['SAP'] = 36
+        internals['KFB'] = inputs['ZKF'] * 7620
+    elif inputs['STKL'] == 3:
+        internals['KZTAB'] = 2
+        internals['SAP'] = 36
+        internals['KFB'] = inputs['ZKF'] * 7620
+    elif inputs['STKL'] == 4:
+        internals['SAP'] = 36
+        internals['KFB'] = inputs['ZKF'] * 3810
+    elif inputs['STKL'] == 5:
+        internals['SAP'] = 36
+        internals['KFB'] = 0
     else:
-        wage_tax_internals['KFB'] = 0
+        internals['KFB'] = 0
 
-    wage_tax_internals['ZTABFB'] = wage_tax_internals['EFA'] + wage_tax_internals['ANP'] + wage_tax_internals['SAP'] + wage_tax_internals['FVBZ']
+    internals['ZTABFB'] = internals['EFA'] + internals['ANP'] + internals['SAP'] + internals['FVBZ']
 
 
-def mlstjahr(wage_tax_inputs, wage_tax_internals):
+def mlstjahr(inputs, internals):
     ''' Ermittlung der Jahreslohnsteuer '''
-    upevp(wage_tax_inputs, wage_tax_internals)
-    if wage_tax_internals['KENNVMT'] != 1:
-        wage_tax_internals['ZVE'] = wage_tax_internals['ZRE4'] - wage_tax_internals['ZTABFB'] - wage_tax_internals['VSP']
-        upmlst(wage_tax_inputs, wage_tax_internals)
+    upevp(inputs, internals)
+    if internals['KENNVMT'] != 1:
+        internals['ZVE'] = internals['ZRE4'] - internals['ZTABFB'] - internals['VSP']
+        upmlst(inputs, internals)
     else:
-        wage_tax_internals['ZVE'] = wage_tax_internals['ZRE4'] - wage_tax_internals['ZTABFB'] - wage_tax_internals['VSP'] - wage_tax_internals['VMT'] / 100 - wage_tax_internals['VKAPA'] / 100
+        internals['ZVE'] = internals['ZRE4'] - internals['ZTABFB'] - internals['VSP'] - internals['VMT'] / 100 - internals['VKAPA'] / 100
 
-        if wage_tax_internals['ZVE'] < 0:
-            wage_tax_internals['ZVE'] = (wage_tax_internals['ZVE'] + wage_tax_internals['VMT'] / 100 - wage_tax_internals['VKAPA'] / 100) / 5
-            upmlst(wage_tax_inputs, wage_tax_internals)
-            wage_tax_internals['ST'] = wage_tax_internals['ST'] * 5
+        if internals['ZVE'] < 0:
+            internals['ZVE'] = (internals['ZVE'] + internals['VMT'] / 100 - internals['VKAPA'] / 100) / 5
+            upmlst(inputs, internals)
+            internals['ST'] = internals['ST'] * 5
         else:
-            upmlst(wage_tax_inputs, wage_tax_internals)
-            wage_tax_internals['STOVMT'] = wage_tax_internals['ST']
-            wage_tax_internals['ZVE'] = wage_tax_internals['ZVE'] + Decimal(wage_tax_inputs['VMT'] + wage_tax_inputs['VKAPA']) / 500
-            upmlst(wage_tax_inputs, wage_tax_internals)
-            wage_tax_internals['ST'] = (wage_tax_internals['ST'] - wage_tax_internals['STOVMT']) * 5 + wage_tax_internals['STOVMT']
+            upmlst(inputs, internals)
+            internals['STOVMT'] = internals['ST']
+            internals['ZVE'] = internals['ZVE'] + Decimal(inputs['VMT'] + inputs['VKAPA']) / 500
+            upmlst(inputs, internals)
+            internals['ST'] = (internals['ST'] - internals['STOVMT']) * 5 + internals['STOVMT']
 
 
-def upvkvlzz(wage_tax_inputs, wage_tax_internals, wage_tax_outputs):
+def upvkvlzz(inputs, internals, outputs):
     ''' Ermittlung des Anteils der berücksichtigten Vorsorgeaufwendungen für den Lohnzahlungszeitraum '''
-    upvkv(wage_tax_inputs, wage_tax_internals)
-    wage_tax_internals['JW'] = wage_tax_internals['VKV']
-    upanteil(wage_tax_inputs, wage_tax_internals)
-    wage_tax_outputs['VKVLZZ'] = wage_tax_internals['ANTEIL1']
+    upvkv(inputs, internals)
+    internals['JW'] = internals['VKV']
+    upanteil(inputs, internals)
+    outputs['VKVLZZ'] = internals['ANTEIL1']
 
 
-def upvkv(wage_tax_inputs, wage_tax_internals):
+def upvkv(inputs, internals):
     ''' Ermittlung der Jahreswertes der berücksichtigten privaten Kranken- und Pflegeversicherungsbeiträge '''
-    if wage_tax_inputs['PKV'] > 0:
-        if wage_tax_internals['VSP2'] > wage_tax_internals['VSP3']:
-            wage_tax_internals['VKV'] = wage_tax_internals['VSP2'] * 100
+    if inputs['PKV'] > 0:
+        if internals['VSP2'] > internals['VSP3']:
+            internals['VKV'] = internals['VSP2'] * 100
         else:
-            wage_tax_internals['VKV'] = wage_tax_internals['VSP3'] * 100
+            internals['VKV'] = internals['VSP3'] * 100
     else:
-        wage_tax_internals['VKV'] = 0
+        internals['VKV'] = 0
 
 
-def uplstlzz(wage_tax_inputs, wage_tax_internals, wage_tax_outputs):
+def uplstlzz(inputs, internals, outputs):
     ''' Ermittlung des Anteils der Jahreslohnsteuer für den Lohnzahlungszeitraum '''
-    wage_tax_internals['JW'] = wage_tax_internals['LSTJAHR'] * 100
-    upanteil(wage_tax_inputs, wage_tax_internals)
-    wage_tax_outputs['LSTLZZ'] = wage_tax_internals['ANTEIL1']
+    internals['JW'] = internals['LSTJAHR'] * 100
+    upanteil(inputs, internals)
+    outputs['LSTLZZ'] = internals['ANTEIL1']
 
 
-def upevp(wage_tax_inputs, wage_tax_internals):
+def upevp(inputs, internals):
     ''' Ermittlung der Vorsorgepauschale '''
     # Teilbetrag für die Rentenversicherung
-    if wage_tax_inputs['KRV'] > 1:
-        wage_tax_internals['VSP1'] = 0
+    if inputs['KRV'] > 1:
+        internals['VSP1'] = 0
     else:
-        if wage_tax_internals['ZRE4VP'] > wage_tax_internals['BBGRV']:
-            wage_tax_internals['ZRE4VP'] = wage_tax_internals['BBGRV']
-        wage_tax_internals['VSP1'] = wage_tax_internals['TBSVORV'] * wage_tax_internals['ZRE4VP']
-        wage_tax_internals['VSP1'] = wage_tax_internals['VSP1'] * wage_tax_internals['RVSATZAN']
+        if internals['ZRE4VP'] > internals['BBGRV']:
+            internals['ZRE4VP'] = internals['BBGRV']
+        internals['VSP1'] = internals['TBSVORV'] * internals['ZRE4VP']
+        internals['VSP1'] = internals['VSP1'] * internals['RVSATZAN']
 
     # Teilbetrag für die gesetzliche Krankenversicherung und Pflegeversicherung
-    wage_tax_internals['VSP2'] = Decimal(0.12) * wage_tax_internals['ZRE4VP']
-    if wage_tax_inputs['STKL'] == 3:
-        wage_tax_internals['VHB'] = Decimal(3000)
+    internals['VSP2'] = Decimal(0.12) * internals['ZRE4VP']
+    if inputs['STKL'] == 3:
+        internals['VHB'] = Decimal(3000)
     else:
-        wage_tax_internals['VHB'] = Decimal(1900)
+        internals['VHB'] = Decimal(1900)
 
-    if wage_tax_internals['VSP2'] > wage_tax_internals['VHB']:
-        wage_tax_internals['VSP2'] = wage_tax_internals['VHB']
+    if internals['VSP2'] > internals['VHB']:
+        internals['VSP2'] = internals['VHB']
 
-    wage_tax_internals['VSPN'] = Decimal(wage_tax_internals['VSP1'] + wage_tax_internals['VSP2']).quantize(Decimal('1.'), rounding=ROUND_UP)
-    mvsp(wage_tax_inputs, wage_tax_internals)
-    if wage_tax_internals['VSPN'] > wage_tax_internals['VSP']:
-        wage_tax_internals['VSP'] = wage_tax_internals['VSPN']
+    internals['VSPN'] = Decimal(internals['VSP1'] + internals['VSP2']).quantize(Decimal('1.'), rounding=ROUND_UP)
+    mvsp(inputs, internals)
+    if internals['VSPN'] > internals['VSP']:
+        internals['VSP'] = internals['VSPN']
 
 
-def mvsp(wage_tax_inputs, wage_tax_internals):
+def mvsp(inputs, internals):
     ''' Vorsorgepauschale - Vergleichsberechung zur Mindestvorsorgepauschale '''
-    if wage_tax_internals['ZRE4VP'] > wage_tax_internals['BBGKVPV']:
-        wage_tax_internals['ZRE4VP'] = wage_tax_internals['BBGKVPV']
+    if internals['ZRE4VP'] > internals['BBGKVPV']:
+        internals['ZRE4VP'] = internals['BBGKVPV']
 
-    if wage_tax_inputs['PKV'] > 0:
+    if inputs['PKV'] > 0:
         # Teilbetrag für die private Basiskranken- und Pflege-Pflichtversicherung
-        if wage_tax_inputs['STKL'] == 6:
-            wage_tax_internals['VSP3'] = 0
+        if inputs['STKL'] == 6:
+            internals['VSP3'] = 0
         else:
-            wage_tax_internals['VSP3'] = wage_tax_inputs['PKPV'] * 12 / 100
-            if wage_tax_internals['PKV'] == 2:
-                wage_tax_internals['VSP3'] = wage_tax_internals['VSP3'] - wage_tax_internals['ZRE4VP'] * (wage_tax_internals['KVSATZAG'] + wage_tax_internals['PVSATZAG'])
+            internals['VSP3'] = inputs['PKPV'] * 12 / 100
+            if internals['PKV'] == 2:
+                internals['VSP3'] = internals['VSP3'] - internals['ZRE4VP'] * (internals['KVSATZAG'] + internals['PVSATZAG'])
     else:
         # Teilbetrag für die gesetzliche Krankenversicherung und Pflegeversicherung
-        wage_tax_internals['VSP3'] = wage_tax_internals['ZRE4VP'] * (wage_tax_internals['KVSATZAN'] + wage_tax_internals['PVSATZAN'])
+        internals['VSP3'] = internals['ZRE4VP'] * (internals['KVSATZAN'] + internals['PVSATZAN'])
 
-    wage_tax_internals['VSP'] = Decimal(wage_tax_internals['VSP3'] + wage_tax_internals['VSP1']).quantize(Decimal('1.'), rounding=ROUND_UP)
+    internals['VSP'] = Decimal(internals['VSP3'] + internals['VSP1']).quantize(Decimal('1.'), rounding=ROUND_UP)
 
 
-def msolz(wage_tax_inputs, wage_tax_internals, wage_tax_outputs):
+def msolz(inputs, internals, outputs):
     ''' Ermittlung des Solidaritätszuschlags '''
-    wage_tax_internals['SOLZFREI'] = wage_tax_internals['SOLZFREI'] * wage_tax_internals['KZTAB']
-    if wage_tax_internals['JBMG'] > wage_tax_internals['SOLZFREI']:
-        wage_tax_internals['SOLZJ'] = Decimal(wage_tax_internals['JBMG'] * Decimal(5.5) / 100).quantize(Decimal('1.00'), rounding=ROUND_DOWN)
-        wage_tax_internals['SOLZMIN'] = (wage_tax_internals['JBMG'] - wage_tax_internals['SOLZFREI']) * 20 / 100
-        if wage_tax_internals['SOLZMIN'] < wage_tax_internals['SOLZJ']:
-            wage_tax_internals['SOLZJ'] = wage_tax_internals['SOLZMIN']
-        wage_tax_internals['JW'] = wage_tax_internals['SOLZJ'] * 100
-        upanteil(wage_tax_inputs, wage_tax_internals)
-        wage_tax_outputs['SOLZLZZ'] = wage_tax_internals['ANTEIL1']
+    internals['SOLZFREI'] = internals['SOLZFREI'] * internals['KZTAB']
+    if internals['JBMG'] > internals['SOLZFREI']:
+        internals['SOLZJ'] = Decimal(internals['JBMG'] * Decimal(5.5) / 100).quantize(Decimal('1.00'), rounding=ROUND_DOWN)
+        internals['SOLZMIN'] = (internals['JBMG'] - internals['SOLZFREI']) * 20 / 100
+        if internals['SOLZMIN'] < internals['SOLZJ']:
+            internals['SOLZJ'] = internals['SOLZMIN']
+        internals['JW'] = internals['SOLZJ'] * 100
+        upanteil(inputs, internals)
+        outputs['SOLZLZZ'] = internals['ANTEIL1']
     else:
-        wage_tax_outputs['SOLZLZZ'] = 0
+        outputs['SOLZLZZ'] = 0
 
-    if wage_tax_inputs['R'] > 0:
-        wage_tax_internals['JW'] = wage_tax_internals['JBMG'] * 100
-        upanteil(wage_tax_inputs, wage_tax_internals)
-        wage_tax_outputs['BK'] = wage_tax_internals['ANTEIL1']
+    if inputs['R'] > 0:
+        internals['JW'] = internals['JBMG'] * 100
+        upanteil(inputs, internals)
+        outputs['BK'] = internals['ANTEIL1']
     else:
-        wage_tax_outputs['BK'] = 0
+        outputs['BK'] = 0
 
 
-def upanteil(wage_tax_inputs, wage_tax_internals):
+def upanteil(inputs, internals):
     ''' Ermittlung des Anteils der Jahreslohnsteuer für den Lohnzahlungszeitraum '''
-    if wage_tax_inputs['LZZ'] == 1:
-        wage_tax_internals['ANTEIL1'] = wage_tax_internals['JW']
-    elif wage_tax_inputs['LZZ'] == 2:
-        wage_tax_internals['ANTEIL1'] = Decimal(wage_tax_internals['JW'] / 12).quantize(Decimal('1.'), rounding=ROUND_DOWN)
-    elif wage_tax_inputs['LZZ'] == 3:
-        wage_tax_internals['ANTEIL1'] = Decimal(wage_tax_internals['JW'] * 7 / 360).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+    if inputs['LZZ'] == 1:
+        internals['ANTEIL1'] = internals['JW']
+    elif inputs['LZZ'] == 2:
+        internals['ANTEIL1'] = Decimal(internals['JW'] / 12).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+    elif inputs['LZZ'] == 3:
+        internals['ANTEIL1'] = Decimal(internals['JW'] * 7 / 360).quantize(Decimal('1.'), rounding=ROUND_DOWN)
     else:
-        wage_tax_internals['ANTEIL1'] = Decimal(wage_tax_internals['JW'] / 360).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+        internals['ANTEIL1'] = Decimal(internals['JW'] / 360).quantize(Decimal('1.'), rounding=ROUND_DOWN)
 
 
-def uptab19(wage_tax_inputs, wage_tax_internals):
+def uptab19(inputs, internals):
     ''' Ermittlung der tariflichen Einkommensteuer '''
-    if wage_tax_internals['X'] < wage_tax_internals['GFB'] + 1:
-        wage_tax_internals['ST'] = 0
-    elif wage_tax_internals['X'] < 14255:
-        wage_tax_internals['Y'] = (wage_tax_internals['X'] - wage_tax_internals['GFB']) / 10000
-        wage_tax_internals['RW'] = wage_tax_internals['Y'] * Decimal(980.14)
-        wage_tax_internals['RW'] = wage_tax_internals['RW'] + 1400
-        wage_tax_internals['ST'] = Decimal(wage_tax_internals['RW'] * wage_tax_internals['Y']).quantize(Decimal('1.'), rounding=ROUND_DOWN)
-    elif wage_tax_internals['X'] < 55961:
-        wage_tax_internals['Y'] = (wage_tax_internals['X'] - 14254) / 10000
-        wage_tax_internals['RW'] = wage_tax_internals['Y'] * Decimal(216.16)
-        wage_tax_internals['RW'] = wage_tax_internals['RW'] + 2397
-        wage_tax_internals['RW'] = wage_tax_internals['RW'] * wage_tax_internals['Y']
-        wage_tax_internals['ST'] = Decimal(wage_tax_internals['RW'] + Decimal(965.58)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
-    elif wage_tax_internals['X'] < 265327:
-        wage_tax_internals['ST'] = Decimal(wage_tax_internals['X'] * Decimal(0.42) - Decimal(8780.90)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+    if internals['X'] < internals['GFB'] + 1:
+        internals['ST'] = 0
+    elif internals['X'] < 14255:
+        internals['Y'] = (internals['X'] - internals['GFB']) / 10000
+        internals['RW'] = internals['Y'] * Decimal(980.14)
+        internals['RW'] = internals['RW'] + 1400
+        internals['ST'] = Decimal(internals['RW'] * internals['Y']).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+    elif internals['X'] < 55961:
+        internals['Y'] = (internals['X'] - 14254) / 10000
+        internals['RW'] = internals['Y'] * Decimal(216.16)
+        internals['RW'] = internals['RW'] + 2397
+        internals['RW'] = internals['RW'] * internals['Y']
+        internals['ST'] = Decimal(internals['RW'] + Decimal(965.58)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+    elif internals['X'] < 265327:
+        internals['ST'] = Decimal(internals['X'] * Decimal(0.42) - Decimal(8780.90)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
     else:
-        wage_tax_internals['ST'] = Decimal(wage_tax_internals['X'] * Decimal(0.45) - Decimal(16740.68)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+        internals['ST'] = Decimal(internals['X'] * Decimal(0.45) - Decimal(16740.68)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
 
-    wage_tax_internals['ST'] = wage_tax_internals['ST'] * wage_tax_internals['KZTAB']
+    internals['ST'] = internals['ST'] * internals['KZTAB']
 
 
-def upmlst(wage_tax_inputs, wage_tax_internals):
+def upmlst(inputs, internals):
     ''' Berechnung der Lohnsteuer '''
-    if wage_tax_internals['ZVE'] < 1:
-        wage_tax_internals['ZVE'] = 0
-        wage_tax_internals['X'] = 0
+    if internals['ZVE'] < 1:
+        internals['ZVE'] = 0
+        internals['X'] = 0
     else:
-        wage_tax_internals['X'] = Decimal(wage_tax_internals['ZVE'] / wage_tax_internals['KZTAB']).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+        internals['X'] = Decimal(internals['ZVE'] / internals['KZTAB']).quantize(Decimal('1.'), rounding=ROUND_DOWN)
 
-    if wage_tax_inputs['STKL'] < 5:
-        uptab19(wage_tax_inputs, wage_tax_internals)
+    if inputs['STKL'] < 5:
+        uptab19(inputs, internals)
     else:
-        mst5_6(wage_tax_inputs, wage_tax_internals)
+        mst5_6(inputs, internals)
 
 
-def mst5_6(wage_tax_inputs, wage_tax_internals):
+def mst5_6(inputs, internals):
     ''' Berechnung der Lohnsteuer für die Steuerklassen V und VI '''
     # todo: implement feature
     raise NotImplementedError('Feature is not yet implemented')
 
 
-def mosonst(wage_tax_inputs, wage_tax_internals, wage_tax_outputs):
+def mosonst(inputs, internals, outputs):
     ''' Berechnung sonstiger Bezüge ohne Vergütung für mehrjährige Tätigkeit '''
     # todo: implement feature
     raise NotImplementedError('Feature is not yet implemented')
 
 
-def mvmt(wage_tax_inputs, wage_tax_internals, wage_tax_outputs):
+def mvmt(inputs, internals, outputs):
     ''' Berechnung der Vergütung für mehrjährige Tätigkeit '''
     # todo: implement feature
     raise NotImplementedError('Feature is not yet implemented')

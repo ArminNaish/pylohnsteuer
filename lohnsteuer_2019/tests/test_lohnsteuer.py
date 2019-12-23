@@ -2,33 +2,14 @@ import sys
 import pytest
 
 from decimal import Decimal
-from ..parameters import wage_tax_inputs, wage_tax_internals, wage_tax_outputs
-import lohnsteuer_2019.lohnsteuer as lohnsteuer
+from ..lohnsteuer import calculate_wage_tax
 
 # todo: check code coverage
 # todo: add steuerklasse 5-und-6 (implement msonst first!!)
 # todo: add "besondere Jahreslohnsteuer" for Steuerklasse 1-6
 
 
-class WageTaxTester:
-    def __init__(self, re4, expected):
-        self.RE4 = re4
-        self.expected = expected
-        
-    def calculate_wage_tax(self, test_input):
-        inputs = {**wage_tax_inputs, **test_input}
-        internals = wage_tax_internals.copy()
-        outputs = wage_tax_outputs.copy()
-        lohnsteuer.calculate_wage_tax(inputs, internals, outputs)
-        return outputs
-
-
-@pytest.fixture()
-def tester(request):
-    return WageTaxTester(*request.param)   
-
-
-@pytest.mark.parametrize('tester', [
+@pytest.mark.parametrize('re4, expected', [
     (Decimal(500000), Decimal(0)),
     (Decimal(750000), Decimal(0)),
     (Decimal(1000000), Decimal(0)),
@@ -64,11 +45,11 @@ def tester(request):
     (Decimal(8500000), Decimal(2198700)),
     (Decimal(8750000), Decimal(2303700)),
     (Decimal(9000000), Decimal(2408700))
-], indirect=True)
-def test_lohnsteuer_steuerklasse_1(tester):
+])
+def test_lohnsteuer_steuerklasse_1(re4, expected):
     # arrange
     params = {
-        'RE4': tester.RE4,      # Bruttolohn in Cent
+        'RE4': re4,             # Bruttolohn in Cent
         'STKL': 1,              # Steuerklasse
         'KRV': 0,               # Gesetzliche RV -> BBG West
         'PKV': 0,               # gesetzlich krankenversicherte Arbeitnehmer
@@ -77,12 +58,12 @@ def test_lohnsteuer_steuerklasse_1(tester):
         'LZZ': 1,               # Lohnzahlungszeitraum: Jahr
     }
     # act
-    actual = tester.calculate_wage_tax(params)
+    actual = calculate_wage_tax(params)
     # assert
-    assert actual['LSTLZZ'] == tester.expected
+    assert actual['LSTLZZ'] == expected
 
 
-@pytest.mark.parametrize('tester', [
+@pytest.mark.parametrize('re4, expected', [
     (Decimal(500000), Decimal(0)),
     (Decimal(750000), Decimal(0)),
     (Decimal(1000000), Decimal(0)),
@@ -118,11 +99,11 @@ def test_lohnsteuer_steuerklasse_1(tester):
     (Decimal(8500000), Decimal(2124300)),
     (Decimal(8750000), Decimal(2229300)),
     (Decimal(9000000), Decimal(2334300))
-], indirect=True)
-def test_lohnsteuer_steuerklasse_2(tester):
+])
+def test_lohnsteuer_steuerklasse_2(re4, expected):
     # arrange
-    params = {
-        'RE4': tester.RE4,      # Bruttolohn in Cent
+    inputs = {
+        'RE4': re4,             # Bruttolohn in Cent
         'STKL': 2,              # Steuerklasse
         'KRV': 0,               # Gesetzliche RV -> BBG West
         'PKV': 0,               # gesetzlich krankenversicherte Arbeitnehmer
@@ -131,12 +112,12 @@ def test_lohnsteuer_steuerklasse_2(tester):
         'LZZ': 1,               # Lohnzahlungszeitraum: Jahr
     }
     # act
-    actual = tester.calculate_wage_tax(params)
+    actual = calculate_wage_tax(inputs)
     # assert
-    assert actual['LSTLZZ'] == tester.expected
+    assert actual['LSTLZZ'] == expected
 
 
-@pytest.mark.parametrize('tester', [
+@pytest.mark.parametrize('re4,expected', [
     (Decimal(500000), Decimal(0)),
     (Decimal(750000), Decimal(0)),
     (Decimal(1000000), Decimal(0)),
@@ -172,11 +153,11 @@ def test_lohnsteuer_steuerklasse_2(tester):
     (Decimal(8500000), Decimal(1482200)),
     (Decimal(8750000), Decimal(1566800)),
     (Decimal(9000000), Decimal(1653000))
-], indirect=True)
-def test_lohnsteuer_steuerklasse_3(tester):
+])
+def test_lohnsteuer_steuerklasse_3(re4, expected):
     # arrange
     params = {
-        'RE4': tester.RE4,      # Bruttolohn in Cent
+        'RE4': re4,             # Bruttolohn in Cent
         'STKL': 3,              # Steuerklasse
         'KRV': 0,               # Gesetzliche RV -> BBG West
         'PKV': 0,               # gesetzlich krankenversicherte Arbeitnehmer
@@ -185,12 +166,12 @@ def test_lohnsteuer_steuerklasse_3(tester):
         'LZZ': 1,               # Lohnzahlungszeitraum: Jahr
     }
     # act
-    actual = tester.calculate_wage_tax(params)
+    actual = calculate_wage_tax(params)
     # assert
-    assert actual['LSTLZZ'] == tester.expected
+    assert actual['LSTLZZ'] == expected
 
 
-@pytest.mark.parametrize('tester', [
+@pytest.mark.parametrize('re4, expected', [
     (Decimal(500000), Decimal(0)),
     (Decimal(750000), Decimal(0)),
     (Decimal(1000000), Decimal(0)),
@@ -226,11 +207,11 @@ def test_lohnsteuer_steuerklasse_3(tester):
     (Decimal(8500000), Decimal(2198700)),
     (Decimal(8750000), Decimal(2303700)),
     (Decimal(9000000), Decimal(2408700))
-], indirect=True)
-def test_lohnsteuer_steuerklasse_4(tester):
+])
+def test_lohnsteuer_steuerklasse_4(re4, expected):
     # arrange
     params = {
-        'RE4': tester.RE4,      # Bruttolohn in Cent
+        'RE4': re4,             # Bruttolohn in Cent
         'STKL': 4,              # Steuerklasse
         'KRV': 0,               # Gesetzliche RV -> BBG West
         'PKV': 0,               # gesetzlich krankenversicherte Arbeitnehmer
@@ -239,6 +220,6 @@ def test_lohnsteuer_steuerklasse_4(tester):
         'LZZ': 1,               # Lohnzahlungszeitraum: Jahr
     }
     # act
-    actual = tester.calculate_wage_tax(params)
+    actual = calculate_wage_tax(params)
     # assert
-    assert actual['LSTLZZ'] == tester.expected
+    assert actual['LSTLZZ'] == expected

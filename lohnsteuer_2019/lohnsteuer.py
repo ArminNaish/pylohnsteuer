@@ -8,7 +8,6 @@ def calculate_wage_tax(params):
     outputs = parameters.wage_tax_outputs.copy()
 
     # todo: add validation
-    # todo: add comments to code to understand it
 
     mpara(inputs, internals)
     mre4jl(inputs, internals)
@@ -410,8 +409,42 @@ def upmlst(inputs, internals):
 
 def mst5_6(inputs, internals):
     ''' Berechnung der Lohnsteuer für die Steuerklassen V und VI '''
-    # todo: implement feature
-    raise NotImplementedError('Feature is not yet implemented')
+    internals['ZZX'] = internals['X']
+    if internals['ZZX'] > internals['W2STKL5']:
+        internals['ZX'] = internals['W2STKL5']
+        up5_6(inputs, internals)
+        if internals['ZZX'] > internals['W3STKL5']:
+            internals['ST'] = Decimal(internals['ST'] + (internals['W3STKL5'] - internals['W2STKL5']) * Decimal(0.42)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+            internals['ST'] = Decimal(internals['ST'] + (internals['ZZX'] - internals['W3STKL5']) * Decimal(0.45)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+        else:
+            internals['ST'] = Decimal(internals['ST'] + (internals['ZZX'] - internals['W2STKL5']) * Decimal(0.42)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+    else:
+        internals['ZX'] = internals['ZZX']
+        up5_6(inputs, internals)
+        if internals['ZZX'] > internals['W1STKL5']:
+            internals['VERGL'] = internals['ST']
+            internals['ZX'] = internals['W1STKL5']
+            up5_6(inputs, internals)
+            internals['HOCH'] = Decimal(internals['ST'] + (internals['ZZX'] - internals['W1STKL5']) * Decimal(0.42)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+            if internals['HOCH'] < internals['VERGL']:
+                internals['ST'] = internals['HOCH']
+            else:
+                internals['ST'] = internals['VERGL']
+
+
+def up5_6(inputs, internals):
+    internals['X'] = internals['ZX'] * Decimal(1.25)
+    uptab19(inputs, internals)
+    internals['ST1'] = internals['ST']
+    internals['X'] = internals['ZX'] * Decimal(0.75)
+    uptab19(inputs, internals)
+    internals['ST2'] = internals['ST']
+    internals['DIFF'] = (internals['ST1'] - internals['ST2']) * Decimal(2)
+    internals['MIST'] = Decimal(internals['ZX'] * Decimal(0.14)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+    if internals['MIST'] > internals['DIFF']:
+        internals['ST'] = internals['MIST']
+    else:
+        internals['ST'] = internals['DIFF']
 
 
 def mosonst(inputs, internals, outputs):

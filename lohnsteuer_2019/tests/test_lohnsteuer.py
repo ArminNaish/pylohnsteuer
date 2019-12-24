@@ -5,7 +5,7 @@ from decimal import Decimal
 from ..lohnsteuer import calculate_wage_tax
 
 # todo: check code coverage
-# todo: add steuerklasse 5-und-6 (implement msonst first!!)
+# todo: implement msonst
 # todo: add "besondere Jahreslohnsteuer" for Steuerklasse 1-6
 
 
@@ -213,6 +213,114 @@ def test_lohnsteuer_steuerklasse_4(re4, expected):
     params = {
         'RE4': re4,             # Bruttolohn in Cent
         'STKL': 4,              # Steuerklasse
+        'KRV': 0,               # Gesetzliche RV -> BBG West
+        'PKV': 0,               # gesetzlich krankenversicherte Arbeitnehmer
+        'KVZ': Decimal(0.90),   # Zusatzbeitragssatz Krankenkasse
+        'PVZ': 1,               # Zuschlag zur Pflegeversicherung für Kinderlose
+        'LZZ': 1,               # Lohnzahlungszeitraum: Jahr
+    }
+    # act
+    actual = calculate_wage_tax(params)
+    # assert
+    assert actual['LSTLZZ'] == expected
+
+
+@pytest.mark.parametrize('re4, expected', [
+    (Decimal(500000),  Decimal(42100)),
+    (Decimal(750000),  Decimal(70400)),
+    (Decimal(1000000), Decimal(98700)),
+    (Decimal(1250000), Decimal(127100)),
+    (Decimal(1500000), Decimal(168400)),
+    (Decimal(1750000), Decimal(261800)),
+    (Decimal(2000000), Decimal(359400)),
+    (Decimal(2250000), Decimal(449600)),
+    (Decimal(2500000), Decimal(525200)),
+    (Decimal(2750000), Decimal(600400)),
+    (Decimal(3000000), Decimal(679400)),
+    (Decimal(3250000), Decimal(762000)),
+    (Decimal(3500000), Decimal(848600)),
+    (Decimal(3750000), Decimal(936500)),
+    (Decimal(4000000), Decimal(1024300)),
+    (Decimal(4250000), Decimal(1112200)),
+    (Decimal(4500000), Decimal(1200100)),
+    (Decimal(4750000), Decimal(1288000)),
+    (Decimal(5000000), Decimal(1375900)),
+    (Decimal(5250000), Decimal(1463800)),
+    (Decimal(5500000), Decimal(1553800)),
+    (Decimal(5750000), Decimal(1651400)),
+    (Decimal(6000000), Decimal(1749000)),
+    (Decimal(6250000), Decimal(1846600)),
+    (Decimal(6500000), Decimal(1944100)),
+    (Decimal(6750000), Decimal(2041700)),
+    (Decimal(7000000), Decimal(2139300)),
+    (Decimal(7250000), Decimal(2236900)),
+    (Decimal(7500000), Decimal(2334400)),
+    (Decimal(7750000), Decimal(2432000)),
+    (Decimal(8000000), Decimal(2529600)),
+    (Decimal(8250000), Decimal(2633400)),
+    (Decimal(8500000), Decimal(2738400)),
+    (Decimal(8750000), Decimal(2843400)),
+    (Decimal(9000000), Decimal(2948400))
+])
+def test_lohnsteuer_steuerklasse_5(re4, expected):
+    # arrange
+    params = {
+        'RE4': re4,             # Bruttolohn in Cent
+        'STKL': 5,              # Steuerklasse
+        'KRV': 0,               # Gesetzliche RV -> BBG West
+        'PKV': 0,               # gesetzlich krankenversicherte Arbeitnehmer
+        'KVZ': Decimal(0.90),   # Zusatzbeitragssatz Krankenkasse
+        'PVZ': 1,               # Zuschlag zur Pflegeversicherung für Kinderlose
+        'LZZ': 1,               # Lohnzahlungszeitraum: Jahr
+    }
+    # act
+    actual = calculate_wage_tax(params)
+    # assert
+    assert actual['LSTLZZ'] == expected
+
+
+@pytest.mark.parametrize('re4, expected', [
+    (Decimal(500000),  Decimal(56600)),
+    (Decimal(750000),  Decimal(84900)),
+    (Decimal(1000000), Decimal(113300)),
+    (Decimal(1250000), Decimal(141600)),
+    (Decimal(1500000), Decimal(211900)),
+    (Decimal(1750000), Decimal(305300)),
+    (Decimal(2000000), Decimal(402900)),
+    (Decimal(2250000), Decimal(488800)),
+    (Decimal(2500000), Decimal(562000)),
+    (Decimal(2750000), Decimal(639000)),
+    (Decimal(3000000), Decimal(719800)),
+    (Decimal(3250000), Decimal(804400)),
+    (Decimal(3500000), Decimal(892100)),
+    (Decimal(3750000), Decimal(980000)),
+    (Decimal(4000000), Decimal(1067800)),
+    (Decimal(4250000), Decimal(1155700)),
+    (Decimal(4500000), Decimal(1243600)),
+    (Decimal(4750000), Decimal(1331500)),
+    (Decimal(5000000), Decimal(1419400)),
+    (Decimal(5250000), Decimal(1507300)),
+    (Decimal(5500000), Decimal(1597300)),
+    (Decimal(5750000), Decimal(1694900)),
+    (Decimal(6000000), Decimal(1792500)),
+    (Decimal(6250000), Decimal(1890100)),
+    (Decimal(6500000), Decimal(1987600)),
+    (Decimal(6750000), Decimal(2085200)),
+    (Decimal(7000000), Decimal(2182800)),
+    (Decimal(7250000), Decimal(2280400)),
+    (Decimal(7500000), Decimal(2377900)),
+    (Decimal(7750000), Decimal(2475500)),
+    (Decimal(8000000), Decimal(2573100)),
+    (Decimal(8250000), Decimal(2676900)),
+    (Decimal(8500000), Decimal(2781900)),
+    (Decimal(8750000), Decimal(2886900)),
+    (Decimal(9000000), Decimal(2991900))
+])
+def test_lohnsteuer_steuerklasse_6(re4, expected):
+    # arrange
+    params = {
+        'RE4': re4,             # Bruttolohn in Cent
+        'STKL': 6,              # Steuerklasse
         'KRV': 0,               # Gesetzliche RV -> BBG West
         'PKV': 0,               # gesetzlich krankenversicherte Arbeitnehmer
         'KVZ': Decimal(0.90),   # Zusatzbeitragssatz Krankenkasse

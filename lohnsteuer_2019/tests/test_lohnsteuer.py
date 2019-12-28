@@ -43,6 +43,18 @@ from ..lohnsteuer import calculate_wage_tax
     (Decimal(9000000), Decimal(2408700))
 ])
 def test_lohnsteuer_steuerklasse_1(re4, expected):
+    '''
+    Allgemeine maschinelle Jahreslohnsteuer 2019 (Prüftabelle)
+
+    Allgemeine Lohnsteuer ist die Lohnsteuer, die für einen Arbeitnehmer zu erheben ist, der in
+    allen Sozialversicherungszweigen versichert ist.
+
+    Berechnet für die Beitragsbemessungsgrenzen West
+    Berechnet mit den Merkern KRV und PKV = 0 sowie KVZ = 0,90
+    In der Steuerklasse II gilt PVZ = 0, in den anderen Steuerklassen gilt PVZ = 1
+
+    Steuerklasse I
+    '''
     # arrange
     params = {
         'RE4': re4,             # Bruttolohn in Cent
@@ -97,6 +109,18 @@ def test_lohnsteuer_steuerklasse_1(re4, expected):
     (Decimal(9000000), Decimal(2334300))
 ])
 def test_lohnsteuer_steuerklasse_2(re4, expected):
+    '''
+    Allgemeine maschinelle Jahreslohnsteuer 2019 (Prüftabelle)
+
+    Allgemeine Lohnsteuer ist die Lohnsteuer, die für einen Arbeitnehmer zu erheben ist, der in
+    allen Sozialversicherungszweigen versichert ist.
+
+    Berechnet für die Beitragsbemessungsgrenzen West
+    Berechnet mit den Merkern KRV und PKV = 0 sowie KVZ = 0,90
+    In der Steuerklasse II gilt PVZ = 0, in den anderen Steuerklassen gilt PVZ = 1
+
+    Steuerklasse II
+    '''
     # arrange
     inputs = {
         'RE4': re4,             # Bruttolohn in Cent
@@ -151,6 +175,18 @@ def test_lohnsteuer_steuerklasse_2(re4, expected):
     (Decimal(9000000), Decimal(1653000))
 ])
 def test_lohnsteuer_steuerklasse_3(re4, expected):
+    '''
+    Allgemeine maschinelle Jahreslohnsteuer 2019 (Prüftabelle)
+
+    Allgemeine Lohnsteuer ist die Lohnsteuer, die für einen Arbeitnehmer zu erheben ist, der in
+    allen Sozialversicherungszweigen versichert ist.
+
+    Berechnet für die Beitragsbemessungsgrenzen West
+    Berechnet mit den Merkern KRV und PKV = 0 sowie KVZ = 0,90
+    In der Steuerklasse II gilt PVZ = 0, in den anderen Steuerklassen gilt PVZ = 1
+
+    Steuerklasse III
+    '''
     # arrange
     params = {
         'RE4': re4,             # Bruttolohn in Cent
@@ -205,6 +241,18 @@ def test_lohnsteuer_steuerklasse_3(re4, expected):
     (Decimal(9000000), Decimal(2408700))
 ])
 def test_lohnsteuer_steuerklasse_4(re4, expected):
+    '''
+    Allgemeine maschinelle Jahreslohnsteuer 2019 (Prüftabelle)
+
+    Allgemeine Lohnsteuer ist die Lohnsteuer, die für einen Arbeitnehmer zu erheben ist, der in
+    allen Sozialversicherungszweigen versichert ist.
+
+    Berechnet für die Beitragsbemessungsgrenzen West
+    Berechnet mit den Merkern KRV und PKV = 0 sowie KVZ = 0,90
+    In der Steuerklasse II gilt PVZ = 0, in den anderen Steuerklassen gilt PVZ = 1
+
+    Steuerklasse IV
+    '''
     # arrange
     params = {
         'RE4': re4,             # Bruttolohn in Cent
@@ -259,6 +307,18 @@ def test_lohnsteuer_steuerklasse_4(re4, expected):
     (Decimal(9000000), Decimal(2948400))
 ])
 def test_lohnsteuer_steuerklasse_5(re4, expected):
+    '''
+    Allgemeine maschinelle Jahreslohnsteuer 2019 (Prüftabelle)
+
+    Allgemeine Lohnsteuer ist die Lohnsteuer, die für einen Arbeitnehmer zu erheben ist, der in
+    allen Sozialversicherungszweigen versichert ist.
+
+    Berechnet für die Beitragsbemessungsgrenzen West
+    Berechnet mit den Merkern KRV und PKV = 0 sowie KVZ = 0,90
+    In der Steuerklasse II gilt PVZ = 0, in den anderen Steuerklassen gilt PVZ = 1
+
+    Steuerklasse V
+    '''
     # arrange
     params = {
         'RE4': re4,             # Bruttolohn in Cent
@@ -313,6 +373,18 @@ def test_lohnsteuer_steuerklasse_5(re4, expected):
     (Decimal(9000000), Decimal(2991900))
 ])
 def test_lohnsteuer_steuerklasse_6(re4, expected):
+    '''
+    Allgemeine maschinelle Jahreslohnsteuer 2019 (Prüftabelle)
+
+    Allgemeine Lohnsteuer ist die Lohnsteuer, die für einen Arbeitnehmer zu erheben ist, der in
+    allen Sozialversicherungszweigen versichert ist.
+
+    Berechnet für die Beitragsbemessungsgrenzen West
+    Berechnet mit den Merkern KRV und PKV = 0 sowie KVZ = 0,90
+    In der Steuerklasse II gilt PVZ = 0, in den anderen Steuerklassen gilt PVZ = 1
+
+    Steuerklasse VI
+    '''
     # arrange
     params = {
         'RE4': re4,             # Bruttolohn in Cent
@@ -367,12 +439,24 @@ def test_lohnsteuer_steuerklasse_6(re4, expected):
     (Decimal(9000000), Decimal(2778500))
 ])
 def test_special_lohnsteuer_steuerklasse_1(re4, expected):
+    '''
+    Besondere maschinelle Jahreslohnsteuer 2019 (Prüftabelle)
+
+    Besondere Lohnsteuer ist die Lohnsteuer, die für einen Arbeitnehmer zu erheben ist, der in
+    keinem Sozialversicherungszweig versichert und privat kranken- und pflegeversichert ist
+    sowie dem Arbeitgeber keine Basiskranken- und Pflege-Pflichtversicherungsbeiträge
+    mitgeteilt hat.
+
+    Berechnet mit den Merkern KRV = 2 und PKV = 1; PKPV = 0
+
+    Steuerklasse I
+    '''
     # arrange
     params = {
         'RE4': re4,             # Bruttolohn in Cent
         'STKL': 1,              # Steuerklasse
-        'KRV': 2,               # Gesetzliche RV -> BBG West
-        'PKV': 1,               # gesetzlich krankenversicherte Arbeitnehmer
+        'KRV': 2,               # in keinem Sozialversicherungszweig versichert
+        'PKV': 1,               # privat krankenversicherte Arbeitnehmer
         'PKPV': 0,              # private Basiskranken- bzw. Pflege-Pflichtversicherung 
         'LZZ': 1,               # Lohnzahlungszeitraum: Jahr
     }
@@ -420,12 +504,24 @@ def test_special_lohnsteuer_steuerklasse_1(re4, expected):
     (Decimal(9000000), Decimal(2698400))
 ])
 def test_special_lohnsteuer_steuerklasse_2(re4, expected):
+    '''
+    Besondere maschinelle Jahreslohnsteuer 2019 (Prüftabelle)
+
+    Besondere Lohnsteuer ist die Lohnsteuer, die für einen Arbeitnehmer zu erheben ist, der in
+    keinem Sozialversicherungszweig versichert und privat kranken- und pflegeversichert ist
+    sowie dem Arbeitgeber keine Basiskranken- und Pflege-Pflichtversicherungsbeiträge
+    mitgeteilt hat.
+
+    Berechnet mit den Merkern KRV = 2 und PKV = 1; PKPV = 0
+
+    Steuerklasse II
+    '''
     # arrange
     params = {
         'RE4': re4,             # Bruttolohn in Cent
         'STKL': 2,              # Steuerklasse
-        'KRV': 2,               # Gesetzliche RV -> BBG West
-        'PKV': 1,               # gesetzlich krankenversicherte Arbeitnehmer
+        'KRV': 2,               # in keinem Sozialversicherungszweig versichert
+        'PKV': 1,               # privat krankenversicherte Arbeitnehmer
         'PKPV': 0,              # private Basiskranken- bzw. Pflege-Pflichtversicherung 
         'LZZ': 1,               # Lohnzahlungszeitraum: Jahr
     }
@@ -473,12 +569,24 @@ def test_special_lohnsteuer_steuerklasse_2(re4, expected):
     (Decimal(9000000), Decimal(1927000))
 ])
 def test_special_lohnsteuer_steuerklasse_3(re4, expected):
+    '''
+    Besondere maschinelle Jahreslohnsteuer 2019 (Prüftabelle)
+
+    Besondere Lohnsteuer ist die Lohnsteuer, die für einen Arbeitnehmer zu erheben ist, der in
+    keinem Sozialversicherungszweig versichert und privat kranken- und pflegeversichert ist
+    sowie dem Arbeitgeber keine Basiskranken- und Pflege-Pflichtversicherungsbeiträge
+    mitgeteilt hat.
+
+    Berechnet mit den Merkern KRV = 2 und PKV = 1; PKPV = 0
+
+    Steuerklasse III
+    '''
     # arrange
     params = {
         'RE4': re4,             # Bruttolohn in Cent
         'STKL': 3,              # Steuerklasse
-        'KRV': 2,               # Gesetzliche RV -> BBG West
-        'PKV': 1,               # gesetzlich krankenversicherte Arbeitnehmer
+        'KRV': 2,               # in keinem Sozialversicherungszweig versichert
+        'PKV': 1,               # privat krankenversicherte Arbeitnehmer
         'PKPV': 0,              # private Basiskranken- bzw. Pflege-Pflichtversicherung 
         'LZZ': 1,               # Lohnzahlungszeitraum: Jahr
     }
@@ -526,12 +634,24 @@ def test_special_lohnsteuer_steuerklasse_3(re4, expected):
     (Decimal(9000000), Decimal(2778500))
 ])
 def test_special_lohnsteuer_steuerklasse_4(re4, expected):
+    '''
+    Besondere maschinelle Jahreslohnsteuer 2019 (Prüftabelle)
+
+    Besondere Lohnsteuer ist die Lohnsteuer, die für einen Arbeitnehmer zu erheben ist, der in
+    keinem Sozialversicherungszweig versichert und privat kranken- und pflegeversichert ist
+    sowie dem Arbeitgeber keine Basiskranken- und Pflege-Pflichtversicherungsbeiträge
+    mitgeteilt hat.
+
+    Berechnet mit den Merkern KRV = 2 und PKV = 1; PKPV = 0
+
+    Steuerklasse IV
+    '''
     # arrange
     params = {
         'RE4': re4,             # Bruttolohn in Cent
         'STKL': 4,              # Steuerklasse
-        'KRV': 2,               # Gesetzliche RV -> BBG West
-        'PKV': 1,               # gesetzlich krankenversicherte Arbeitnehmer
+        'KRV': 2,               # in keinem Sozialversicherungszweig versichert
+        'PKV': 1,               # privat krankenversicherte Arbeitnehmer
         'PKPV': 0,              # private Basiskranken- bzw. Pflege-Pflichtversicherung 
         'LZZ': 1,               # Lohnzahlungszeitraum: Jahr
     }
@@ -579,12 +699,24 @@ def test_special_lohnsteuer_steuerklasse_4(re4, expected):
     (Decimal(9000000), Decimal(3318300))
 ])
 def test_special_lohnsteuer_steuerklasse_5(re4, expected):
+    '''
+    Besondere maschinelle Jahreslohnsteuer 2019 (Prüftabelle)
+
+    Besondere Lohnsteuer ist die Lohnsteuer, die für einen Arbeitnehmer zu erheben ist, der in
+    keinem Sozialversicherungszweig versichert und privat kranken- und pflegeversichert ist
+    sowie dem Arbeitgeber keine Basiskranken- und Pflege-Pflichtversicherungsbeiträge
+    mitgeteilt hat.
+
+    Berechnet mit den Merkern KRV = 2 und PKV = 1; PKPV = 0
+
+    Steuerklasse V
+    '''
     # arrange
     params = {
         'RE4': re4,             # Bruttolohn in Cent
         'STKL': 5,              # Steuerklasse
-        'KRV': 2,               # Gesetzliche RV -> BBG West
-        'PKV': 1,               # gesetzlich krankenversicherte Arbeitnehmer
+        'KRV': 2,               # in keinem Sozialversicherungszweig versichert
+        'PKV': 1,               # privat krankenversicherte Arbeitnehmer
         'PKPV': 0,              # private Basiskranken- bzw. Pflege-Pflichtversicherung 
         'LZZ': 1,               # Lohnzahlungszeitraum: Jahr
     }
@@ -632,12 +764,24 @@ def test_special_lohnsteuer_steuerklasse_5(re4, expected):
     (Decimal(9000000), Decimal(3361800))
 ])
 def test_special_lohnsteuer_steuerklasse_6(re4, expected):
+    '''
+    Besondere maschinelle Jahreslohnsteuer 2019 (Prüftabelle)
+
+    Besondere Lohnsteuer ist die Lohnsteuer, die für einen Arbeitnehmer zu erheben ist, der in
+    keinem Sozialversicherungszweig versichert und privat kranken- und pflegeversichert ist
+    sowie dem Arbeitgeber keine Basiskranken- und Pflege-Pflichtversicherungsbeiträge
+    mitgeteilt hat.
+
+    Berechnet mit den Merkern KRV = 2 und PKV = 1; PKPV = 0
+
+    Steuerklasse VI
+    '''
     # arrange
     params = {
         'RE4': re4,             # Bruttolohn in Cent
         'STKL': 6,              # Steuerklasse
-        'KRV': 2,               # Gesetzliche RV -> BBG West
-        'PKV': 1,               # gesetzlich krankenversicherte Arbeitnehmer
+        'KRV': 2,               # in keinem Sozialversicherungszweig versichert
+        'PKV': 1,               # privat krankenversicherte Arbeitnehmer
         'PKPV': 0,              # private Basiskranken- bzw. Pflege-Pflichtversicherung 
         'LZZ': 1,               # Lohnzahlungszeitraum: Jahr
     }
@@ -645,3 +789,118 @@ def test_special_lohnsteuer_steuerklasse_6(re4, expected):
     actual = calculate_wage_tax(params)
     # assert
     assert actual['LSTLZZ'] == expected
+
+
+def test_lohnsteuer_mit_sonstigen_bezuegen_1():
+    '''
+    Beispiel 1 mit Urlaubsgeld (Abrechnungsjahr 2019):
+
+    Ein Arbeitnehmer hat ein Gehalt von 3.000,00 €.
+    Er hat dieses Gehalt seit Anfang des Jahres 2019 bezogen.
+    Abrechnungsmonat ist der Monat Mai 2019 mit zusätzlichem Urlaubsgeld von 1.000,00 €.
+    Die elektronischen Lohnsteuerabzugsmerkmale des Arbeitnehmers beinhalten die Steuerklasse IV, keine Kinderfreibeträge und das Kirchensteuermerkmal ev.
+    Die Betriebsstätte befindet sich in Hessen. Der Kirchensteuersatz beträgt 9%. Wegen der verbesserten steuerlichen Berücksichtigung von Vorsorgeaufwendungen müssen beim Steuerabzug Angaben zu Vorsorgeaufwendungen gemacht werden. Für unser Beispiel sind das:
+        Rechtskreis West (wegen unterschiedlicher Beitragsbemessungsgrenzen; spielt bei diesem Monatseinkommen aber keine Rolle)
+        Der Arbeitnehmer ist pflichtversichert in der gesetzlichen Krankenversicherung. Der krankenkassenindividuelle Zusatzbeitragssatz beträgt 1,1%.
+        Beitragszuschlag für Kinderlose von 0,25%
+
+    Vom aktuellen Arbeitgeber bereits gezahlter laufender Arbeitslohn:
+    5 * 3.000,00 € = 15.000,00 €
+
+    Umrechnung des bereits gezahlten laufenden Arbeitslohns auf 12 Monate:
+    15.000,00 € / 5 * 12 = 36.000,00 €
+
+    Es gibt keine bereits gezahlten steuerpflichtigen sonstigen Bezüge.
+
+    Ein Hinzurechnungsbetrag bzw. Jahresfreibetrag ist nicht zu berücksichtigen.
+    Altersentlastungsbetrag (Arbeitnehmer ist noch nicht 64) und Versorgungsfreibetrag (Arbeitnehmer erhält keinen Versorgungsbezug) kommen nicht in Betracht.
+    '''
+    # arrange
+    params = {
+        'JRE4': Decimal(3600000),   # Maßgebenden Jahresarbeitslohn (voraussichtliches Gehalt auf 12 Monate)
+        'RE4': Decimal(300000),     # Brutto Monatsgehalt
+        'SONSTB': Decimal(100000),  # Sonstige Bezüge
+        'VBS': 0,                   # darin enthaltene Versorgungsbezüge
+        'STKL': 1,                  # Steuerklasse
+        'KRV': 0,                   # Gesetzliche RV -> BBG West
+        'PKV': 0,                   # gesetzlich krankenversicherte Arbeitnehmer        
+        'LZZ': 2,                   # Lohnzahlungszeitraum: Monat
+        'R': 1,                     # Religionsgemeinschaft
+        'KVZ': Decimal(1.1) ,       # Zusatzbeitragssatz Krankenkasse
+        'PVZ': 1,                   # Zuschlag zur Pflegeversicherung für Kinderlose
+    }
+    # act
+    actual = calculate_wage_tax(params)
+    # assert
+    assert actual['LSTLZZ'] == 41575
+    assert actual['SOLZLZZ'] == 2286
+    assert actual['STS'] == 25500   # Lohnsteuer für sonstige Bezüge 
+    assert actual['SOLZS'] == 1402
+    
+
+def test_lohnsteuer_mit_sonstigen_bezuegen_2():
+    '''
+    Beispiel 2 mit Weihnachtsgeld (Abrechnungsjahr 2019):
+    
+    Fortsetzung des obigen Beispiels
+    Der Arbeitnehmer hat ein Gehalt von 3.000,00 €.
+    Er hat dieses Gehalt seit Anfang des Jahres 2019 bezogen.
+    Im Monat Mai wurde ein zusätzliches Urlaubsgeld von 1.000,00 € gezahlt.
+    Abrechnungsmonat ist der Monat November 2019 mit zusätzlichem Weihnachtsgeld von 1.000,00 €.
+    Die elektronischen Lohnsteuerabzugsmerkmale des Arbeitnehmers beinhalten die Steuerklasse IV, keine Kinderfreibeträge und das Kirchensteuermerkmal ev.
+    Die Betriebsstätte befindet sich in Hessen. Der Kirchensteuersatz beträgt 9%. Wegen der verbesserten steuerlichen Berücksichtigung von Vorsorgeaufwendungen müssen beim Steuerabzug Angaben zu Vorsorgeaufwendungen gemacht werden. Für unser Beispiel sind das:
+        Rechtskreis West (wegen unterschiedlicher Beitragsbemessungsgrenzen; spielt bei diesem Monatseinkommen aber keine Rolle)
+        Der Arbeitnehmer ist pflichtversichert in der gesetzlichen Krankenversicherung. Der krankenkassenindividuelle Zusatzbeitragssatz beträgt 1,1%.
+        Beitragszuschlag für Kinderlose von 0,25%
+
+    Vom aktuellen Arbeitgeber bereits gezahlter laufender Arbeitslohn:
+    11 * 3.000,00 € = 33.000,00 €
+
+    Umrechnung des bereits gezahlten laufenden Arbeitslohns auf 12 Monate:
+    33.000,00 € / 11 * 12 = 36.000,00 €
+
+    Zu den 36.000,00 € muss der steuerpflichtige sonstige Bezug des Monat Mai von 1.000,00 € addiert werden.
+
+    Ein Hinzurechnungsbetrag bzw. Jahresfreibetrag ist nicht zu berücksichtigen.
+    Altersentlastungsbetrag (Arbeitnehmer ist noch nicht 64) und Versorgungsfreibetrag (Arbeitnehmer erhält keinen Versorgungsbezug) kommen nicht in Betracht.
+    '''
+    # arrange
+    params = {
+        'JRE4': Decimal(3700000),   # Maßgebender Jahresarbeitslohn ((voraussichtliches Gehalt auf 12 Monate + Urlaubsgeld Mai)
+        'RE4': Decimal(300000),     # bereits erhaltenes Gehalt für 11 Monate
+        'SONSTB': Decimal(100000),  # Sonstige Bezüge
+        'VBS': 0,                   # darin enthaltene Versorgungsbezüge
+        'STKL': 4,                  # Steuerklasse
+        'KRV': 0,                   # Gesetzliche RV -> BBG West
+        'PKV': 0,                   # gesetzlich krankenversicherte Arbeitnehmer        
+        'LZZ': 2,                   # Lohnzahlungszeitraum: Monatlich
+        'R': 1,                     # Religionsgemeinschaft
+        'KVZ': Decimal(1.1) ,       # Zusatzbeitragssatz Krankenkasse
+        'PVZ': 1,                   # Zuschlag zur Pflegeversicherung für Kinderlose
+    }
+    # act
+    actual = calculate_wage_tax(params)
+    # assert
+    assert actual['LSTLZZ'] == 41575
+    assert actual['SOLZLZZ'] == 2286
+    assert actual['STS'] == 25800   # Lohnsteuer für sonstige Bezüge 
+    assert actual['SOLZS'] == 1419
+    
+
+
+    # todo: validate vbs is set when sonstb
+
+
+# todo: test lzz -> jahr, monat, woche, tag
+
+#todo: test versorgungsbezüge
+# todo: test alter > 65
+# todo: test mehrjährige Tätigkeit
+# todo: test Kinderfreibetrag
+
+
+# todo: readme
+# Sonstige Bezüge sind Vergütungen, die ihrem Wesen nach nicht zum laufenden Arbeitslohn gehöre
+# Sie werden als einmalige Zahlung aus besonderem Anlass oder zu einem bestimmten Zweck gewährt.
+# Beispiele: Weihnachtsgeld / Urlaubsgeld
+# https://www.lohn-info.de/lohnsteuerabzug3.html

@@ -43,8 +43,8 @@ def validate(inputs):
         raise ValueError('JVBEZ must not be negative')
     if inputs['KRV'] not in (0,1,2):
         raise ValueError('KRV must have a value of 0, 1 or 2')
-    if not (0 <= inputs['KVZ'] <= 1):
-        raise ValueError('KVZ must have a value between 0 and 1')
+    if inputs['KVZ'] < 0:
+        raise ValueError('KVZ must not be negative')
     if inputs['LZZ'] not in (1,2,3,4):
         raise ValueError('LZZ must have a value between 1 and 4')
     if inputs['LZZFREIB'] < 0:
@@ -149,23 +149,21 @@ def mre4jl(inputs, internals):
         internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] / 100)
         internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] / 100)
         internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] / 100)
+    elif inputs['LZZ'] == 2:
+        internals['ZRE4J'] = Decimal(inputs['RE4'] * 12 / 100)
+        internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * 12 / 100)
+        internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * 12 / 100)
+        internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * 12 / 100)
+    elif inputs['LZZ'] == 3:
+        internals['ZRE4J'] = Decimal(inputs['RE4'] * 360 / 7 / 100)
+        internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * 360 / 7 / 100)
+        internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * 360 / 7 / 100)
+        internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * 360 / 7 / 100)
     else:
-        if inputs['LZZ'] == 2:
-            internals['ZRE4J'] = Decimal(inputs['RE4'] * 12 / 100)
-            internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * 12 / 100)
-            internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * 12 / 100)
-            internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * 12 / 100)
-        else:
-            if inputs['LZZ'] == 3:
-                internals['ZRE4J'] = Decimal(inputs['RE4'] * 360 / 7 / 100)
-                internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * 360 / 7 / 100)
-                internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * 360 / 7 / 100)
-                internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * 360 / 7 / 100)
-            else:
-                internals['ZRE4J'] = Decimal(inputs['RE4'] * 360 / 100)
-                internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * 360 / 100)
-                internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * 360 / 100)
-                internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * 360 / 100)
+        internals['ZRE4J'] = Decimal(inputs['RE4'] * 360 / 100)
+        internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * 360 / 100)
+        internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * 360 / 100)
+        internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * 360 / 100)
 
     if inputs['AF'] == 0:
         inputs['F'] = Decimal(1)
@@ -501,12 +499,12 @@ def msonst(inputs, internals, outputs):
         mosonst(inputs, internals)
         upvkv(inputs, internals)
         outputs['VKVSONST'] = internals['VKV']
-        internals['ZRE4J'] = (internals['JRE4'] + inputs['SONSTB']) / 100
-        internals['ZVBEZJ'] = (internals['JVBEZ'] + inputs['VBS']) / 100
+        internals['ZRE4J'] = (inputs['JRE4'] + inputs['SONSTB']) / 100
+        internals['ZVBEZJ'] = (inputs['JVBEZ'] + inputs['VBS']) / 100
         internals['VBEZBSO'] = inputs['STERBE']
         mre4sonst(inputs, internals)
         mlstjahr(inputs, internals)
-        outputs['WVFRBM'] = (inputs['ZVE'] - inputs['GFB']) * Decimal(100)
+        outputs['WVFRBM'] = (internals['ZVE'] - internals['GFB']) * Decimal(100)
         if outputs['WVFRBM'] < 0:
             outputs['WVFRBM'] = 0
         upvkv(inputs, internals)
@@ -515,7 +513,7 @@ def msonst(inputs, internals, outputs):
         outputs['STS'] = Decimal((internals['LSTSO'] - internals['LSTOSO']) * inputs['F']).quantize(Decimal('1.'), rounding=ROUND_DOWN)
         if outputs['STS'] < 0:
             outputs['STS'] = 0
-        outputs['SOLZ'] = outputs['STS'] * Decimal(5.5) / Decimal(100)
+        outputs['SOLZS'] = Decimal(outputs['STS'] * Decimal(5.5) / Decimal(100)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
         if inputs['R'] > 0:
             outputs['BKS'] = outputs['STS']
         else:
@@ -534,15 +532,15 @@ def mvmt(inputs, internals, outputs):
             mosonst(inputs, internals)
             internals['LST1'] = internals['LSTOSO']
         else:
-            internals['LST1'] = internals['LSTOSO']
+            internals['LST1'] = internals['LSTSO']
         internals['VBEZBSO'] = inputs['STERBE'] + inputs['VKAPA']
-        internals['ZRE4J'] = (inputs['JRE4'] + internals['SONSTB'] + internals['VMT'] + inputs['VKAPA']) / 100
+        internals['ZRE4J'] = (inputs['JRE4'] + internals['SONSTB'] + internals['VMT'] + inputs['VKAPA']) / Decimal(100)
         internals['KENNVMT'] = 2
         mre4sonst(inputs, internals)
         mlstjahr(inputs,internals)
         internals['LST3'] = internals['ST'] * Decimal(100)
         mre4abz(inputs, internals)
-        internals['ZRE4VP'] = internals['ZRE4VP'] - internals['JRE4ENT'] / Decimal(100) - internals['SONSTENT'] / 100
+        internals['ZRE4VP'] = internals['ZRE4VP'] - internals['JRE4ENT'] / Decimal(100) - internals['SONSTENT'] / Decimal(100)
         internals['KENNVMT'] = 1
         mlstjahr()
         internals['LST2'] = internals['ST'] * Decimal(100)
@@ -594,7 +592,7 @@ def mre4sonst(inputs, internals):
     mre4(inputs, internals)
     internals['FVB'] = internals['FVBSO']
     mre4abz(inputs, internals)
-    internals['ZRE4VP'] = internals['ZRE4VP'] - internals['JRE4ENT'] / Decimal(100) - internals['SONSTENT'] / 100
+    internals['ZRE4VP'] = internals['ZRE4VP'] - inputs['JRE4ENT'] / Decimal(100) - inputs['SONSTENT'] / Decimal(100)
     internals['FVBZ'] = internals['FVBZSO']
     mztabfb(inputs, internals)
     internals['VFRBS2'] = (internals['ANP'] + internals['FVB'] + internals['FVBZ']) * Decimal(100) - internals['VFRBS1']

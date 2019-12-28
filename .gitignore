@@ -2,6 +2,10 @@
 .idea/
 .vscode/
 
+# Code coverage files
+.coverage
+cov.xml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

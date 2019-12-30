@@ -108,7 +108,9 @@ def validate(inputs):
     if inputs['STKL'] > 4:
         if inputs['ZKF'] > 0:
             raise ValueError('ZKF > 0 is only allowed in STKL 5 or 6')
-
+    if inputs['VBS'] > 0:
+        if inputs['SONSTB'] <= 0:
+            raise ValueError('VBS > 0 is only allowed when SONSTB is set')
 
 def mpara(inputs, internals):
     ''' Zuweisung von Werten für bestimmte Sozialversicherungsparameter '''
@@ -186,26 +188,26 @@ def mre4(inputs, internals):
                 internals['J'] = 36
         if inputs['LZZ'] == 1:
             internals['VBEZB'] = inputs['VBEZM'] * inputs['ZMVB'] + inputs['VBEZS']
-            internals['HFVB'] = inputs['TAB2'][internals['J']] / 12 * inputs['ZMVB']
-            internals['FVBZ'] = Decimal((inputs['TAB3'][internals['J']] / 12 * inputs['ZMVB'])).quantize(Decimal('1.'), rounding=ROUND_UP)
+            internals['HFVB'] = internals['TAB2'][internals['J']] / 12 * inputs['ZMVB']
+            internals['FVBZ'] = Decimal((internals['TAB3'][internals['J']] / 12 * inputs['ZMVB'])).quantize(Decimal('1.'), rounding=ROUND_UP)
         else:
             internals['VBEZB'] = inputs['VBEZM'] * 12 + inputs['VBEZS']
-            internals['HFVB'] = inputs['TAB2'][internals['J']]
-            internals['FVBZ'] = inputs['TAB3'][internals['J']]
-        internals['FVB'] = Decimal(internals['VBEZB'] * inputs['TAB1'][internals['J']] / 100).quantize(Decimal('1.00'), rounding=ROUND_UP)
+            internals['HFVB'] = internals['TAB2'][internals['J']]
+            internals['FVBZ'] = internals['TAB3'][internals['J']]
+        internals['FVB'] = Decimal(internals['VBEZB'] * internals['TAB1'][internals['J']] / 100).quantize(Decimal('1.00'), rounding=ROUND_UP)
         if internals['FVB'] > internals['HFVB']:
             internals['FVB'] = internals['HFVB']
         if internals['FVB'] > internals['ZVBEZJ']:
             internals['FVB'] = internals['ZVBEZJ']
-        internals['FVBSO'] = Decimal(internals['FVB'] + internals['VBEZBSO'] * inputs['TAB1'][internals['J']] / 100).quantize(Decimal('1.00'), rounding=ROUND_UP)
-        if internals['FVBSO'] > inputs['TAB2'][internals['J']]:
-            internals['FVBSO'] = inputs['TAB2'][internals['J']]
+        internals['FVBSO'] = Decimal(internals['FVB'] + internals['VBEZBSO'] * internals['TAB1'][internals['J']] / 100).quantize(Decimal('1.00'), rounding=ROUND_UP)
+        if internals['FVBSO'] > internals['TAB2'][internals['J']]:
+            internals['FVBSO'] = internals['TAB2'][internals['J']]
         internals['HFVBZSO'] = (internals['VBEZB'] + internals['VBEZBSO']) / 100 - internals['FVBSO']
         internals['FVBZSO'] = Decimal(internals['FVBZ'] + internals['VBEZBSO'] / 100).quantize(Decimal('1.'), rounding=ROUND_UP)
         if internals['FVBZSO'] > internals['HFVBZSO']:
             internals['FVBZSO'] = Decimal(internals['HFVBZSO']).quantize(Decimal('1.'), rounding=ROUND_UP)
-        if internals['FVBZSO'] > inputs['TAB3'][internals['J']]:
-            internals['FVBZSO'] = inputs['TAB3'][internals['J']]
+        if internals['FVBZSO'] > internals['TAB3'][internals['J']]:
+            internals['FVBZSO'] = internals['TAB3'][internals['J']]
         internals['HFVBZ'] = internals['VBEZB'] / 100 - internals['FVB']
         if internals['FVBZ'] > internals['HFVBZ']:
             internals['FVBZ'] = Decimal(internals['HFVBZ']).quantize(Decimal('1.'), rounding=ROUND_UP)
@@ -225,8 +227,8 @@ def mre4alte(inputs, internals):
             else:
                 internals['K'] = 36
         internals['BMG'] = internals['ZRE4J'] - internals['ZVBEZJ']
-        internals['ALTE'] = Decimal(internals['BMG'] * inputs['TAB4'][internals['K']]).quantize(Decimal('1.00'), rounding=ROUND_UP)
-        internals['HBALTE'] = inputs['TAB5'][internals['K']]
+        internals['ALTE'] = Decimal(internals['BMG'] * internals['TAB4'][internals['K']]).quantize(Decimal('1.00'), rounding=ROUND_UP)
+        internals['HBALTE'] = internals['TAB5'][internals['K']]
         if internals['ALTE'] > internals['HBALTE']:
             internals['ALTE'] = internals['HBALTE']
 

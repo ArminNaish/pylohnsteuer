@@ -791,7 +791,7 @@ def test_special_lohnsteuer_steuerklasse_6(re4, expected):
     assert actual['LSTLZZ'] == expected
 
 
-def test_lohnsteuer_mit_sonstigen_bezuegen_1():
+def test_sonstige_bezuegen_1():
     '''
     Beispiel 1 mit Urlaubsgeld (Abrechnungsjahr 2019):
 
@@ -838,7 +838,7 @@ def test_lohnsteuer_mit_sonstigen_bezuegen_1():
     assert actual['SOLZS'] == 1402
     
 
-def test_lohnsteuer_mit_sonstigen_bezuegen_2():
+def test_sonstige_bezuegen_2():
     '''
     Beispiel 2 mit Weihnachtsgeld (Abrechnungsjahr 2019):
     
@@ -887,19 +887,41 @@ def test_lohnsteuer_mit_sonstigen_bezuegen_2():
     assert actual['SOLZS'] == 1419
     
 
+def test_versorgungsbezuege():
+    # arrange
+    params = {
+        'SONSTB': Decimal(2000000),  # Sonstige Bezüge
+        'VBS': Decimal(100000),     # darin enthaltene Versorgungsbezüge
+        'STKL': 1,                  # Steuerklasse
+        'KRV': 0,                   # Gesetzliche RV -> BBG West
+        'PKV': 0,                   # gesetzlich krankenversicherte Arbeitnehmer        
+        'LZZ': 2,                   # Lohnzahlungszeitraum: Monat
+        'R': 1,                     # Religionsgemeinschaft
+        'KVZ': Decimal(1.1) ,       # Zusatzbeitragssatz Krankenkasse
+        'PVZ': 1,                   # Zuschlag zur Pflegeversicherung für Kinderlose
+    }
+    # act
+    actual = calculate_wage_tax(params)
+    # assert
+    assert actual['STS'] == 127900   
+    assert actual['SOLZS'] == 7034
 
-    # todo: validate vbs is set when sonstb
 
 
-# todo: test lzz -> jahr, monat, woche, tag
-
-#todo: test versorgungsbezüge
 # todo: test alter > 65
 # todo: test mehrjährige Tätigkeit
 # todo: test Kinderfreibetrag
 
 
-# todo: readme
+# Versorgungsbezüge
+# Versorgungsbezüge sind nach der Definition in § 229 SGB V der Rente vergleichbare Einnahmen (Versorgungsbezüge), soweit sie wegen einer Einschränkung der Erwerbsfähigkeit oder zur Alters- oder Hinterbliebenenversorgung erzielt werden.
+# Zu den Versorgungsbezügen gehören:
+# Renten der Versicherungs- und Versorgungseinrichtungen, die für Angehörige bestimmter Berufe errichtet sind (z.B. der Ärzte, Architekten, Rechtsanwälte),
+# Renten der betrieblichen Altersversorgung einschließlich der Zusatzversorgung im öffentlichen Dienst und der hüttenknappschaftlichen Zusatzversorgung,
+# Bezüge aus der Versorgung der Abgeordneten, Parlamentarischen Staatssekretäre und Minister,
+# Versorgungsbezüge aus einem öffentlich-rechtlichen Dienstverhältnis oder aus einem Arbeitsverhältnis mit Anspruch auf Versorgung nach beamtenrechtlichen Vorschriften oder Grundsätzen.
+
+# Sonstige Bezüge:
 # Sonstige Bezüge sind Vergütungen, die ihrem Wesen nach nicht zum laufenden Arbeitslohn gehöre
 # Sie werden als einmalige Zahlung aus besonderem Anlass oder zu einem bestimmten Zweck gewährt.
 # Beispiele: Weihnachtsgeld / Urlaubsgeld

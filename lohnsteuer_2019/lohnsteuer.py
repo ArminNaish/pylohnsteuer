@@ -9,8 +9,8 @@ def calculate_wage_tax(params):
     validate(inputs)
     mpara(inputs, internals)
     mre4jl(inputs, internals)
-    internals['VBEZBSO'] = 0
-    internals['KENNVMT'] = 0
+    internals['VBEZBSO'] = Decimal(0)
+    internals['KENNVMT'] = Decimal(0)
     mre4(inputs, internals)
     mre4abz(inputs, internals)
     mberech(inputs, internals, outputs)
@@ -124,7 +124,7 @@ def mpara(inputs, internals):
         internals['TBSVORV'] = Decimal(0.76)
     # Parameter Krankenversicherung/Pflegeversicherung
     internals['BBGKVPV'] = Decimal(54450)
-    internals['KVSATZAN'] = (inputs['KVZ'] / 2 / 100) + Decimal(0.07)
+    internals['KVSATZAN'] = (inputs['KVZ'] / Decimal(2) / Decimal(100)) + Decimal(0.07)
     internals['KVSATZAG'] = Decimal(0.0045) + Decimal(0.07)
     if inputs['PVS'] == 1:
         internals['PVSATZAN'] = Decimal(0.02025)
@@ -147,25 +147,25 @@ def mpara(inputs, internals):
 def mre4jl(inputs, internals):
     ''' Ermittlung des Jahresarbeitslohns und der Freibeträge '''
     if inputs['LZZ'] == 1:
-        internals['ZRE4J'] = Decimal(inputs['RE4'] / 100)
-        internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] / 100)
-        internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] / 100)
-        internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] / 100)
+        internals['ZRE4J'] = Decimal(inputs['RE4'] / Decimal(100))
+        internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] / Decimal(100))
+        internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] / Decimal(100))
+        internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] / Decimal(100))
     elif inputs['LZZ'] == 2:
-        internals['ZRE4J'] = Decimal(inputs['RE4'] * 12 / 100)
-        internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * 12 / 100)
-        internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * 12 / 100)
-        internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * 12 / 100)
+        internals['ZRE4J'] = Decimal(inputs['RE4'] * Decimal(12) / Decimal(100))
+        internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * Decimal(12) / Decimal(100))
+        internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * Decimal(12) / Decimal(100))
+        internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * Decimal(12) / Decimal(100))
     elif inputs['LZZ'] == 3:
-        internals['ZRE4J'] = Decimal(inputs['RE4'] * 360 / 7 / 100)
-        internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * 360 / 7 / 100)
-        internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * 360 / 7 / 100)
-        internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * 360 / 7 / 100)
+        internals['ZRE4J'] = Decimal(inputs['RE4'] * Decimal(360) / Decimal(7) / Decimal(100))
+        internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * Decimal(360) / Decimal(7) / Decimal(100))
+        internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * Decimal(360) / Decimal(7) / Decimal(100))
+        internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * Decimal(360) / Decimal(7) / Decimal(100))
     else:
-        internals['ZRE4J'] = Decimal(inputs['RE4'] * 360 / 100)
-        internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * 360 / 100)
-        internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * 360 / 100)
-        internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * 360 / 100)
+        internals['ZRE4J'] = Decimal(inputs['RE4'] * Decimal(360) / Decimal(100))
+        internals['ZVBEZJ'] = Decimal(inputs['VBEZ'] * Decimal(360) / Decimal(100))
+        internals['JLFREIB'] = Decimal(inputs['LZZFREIB'] * Decimal(360) / Decimal(100))
+        internals['JLHINZU'] = Decimal(inputs['LZZHINZU'] * Decimal(360) / Decimal(100))
 
     if inputs['AF'] == 0:
         inputs['F'] = Decimal(1)
@@ -174,10 +174,10 @@ def mre4jl(inputs, internals):
 def mre4(inputs, internals):
     ''' Ermittlung der Freibeträge für Versorgungsbezüge, Altersentlastungsbetrag '''
     if internals['ZVBEZJ'] == 0:
-        internals['FVBZ'] = 0
-        internals['FVB'] = 0
-        internals['FVBZSO'] = 0
-        internals['FVBSO'] = 0
+        internals['FVBZ'] = Decimal(0)
+        internals['FVB'] = Decimal(0)
+        internals['FVBZSO'] = Decimal(0)
+        internals['FVBSO'] = Decimal(0)
     else:
         if inputs['VJAHR'] < 2006:
             internals['J'] = 1
@@ -188,27 +188,27 @@ def mre4(inputs, internals):
                 internals['J'] = 36
         if inputs['LZZ'] == 1:
             internals['VBEZB'] = inputs['VBEZM'] * inputs['ZMVB'] + inputs['VBEZS']
-            internals['HFVB'] = internals['TAB2'][internals['J']] / 12 * inputs['ZMVB']
-            internals['FVBZ'] = Decimal((internals['TAB3'][internals['J']] / 12 * inputs['ZMVB'])).quantize(Decimal('1.'), rounding=ROUND_UP)
+            internals['HFVB'] = internals['TAB2'][internals['J']] / Decimal(12) * inputs['ZMVB']
+            internals['FVBZ'] = Decimal((internals['TAB3'][internals['J']] / Decimal(12) * inputs['ZMVB'])).quantize(Decimal('1.'), rounding=ROUND_UP)
         else:
-            internals['VBEZB'] = inputs['VBEZM'] * 12 + inputs['VBEZS']
+            internals['VBEZB'] = inputs['VBEZM'] * Decimal(12) + inputs['VBEZS']
             internals['HFVB'] = internals['TAB2'][internals['J']]
             internals['FVBZ'] = internals['TAB3'][internals['J']]
-        internals['FVB'] = Decimal(internals['VBEZB'] * internals['TAB1'][internals['J']] / 100).quantize(Decimal('1.00'), rounding=ROUND_UP)
+        internals['FVB'] = Decimal(internals['VBEZB'] * internals['TAB1'][internals['J']] / Decimal(100)).quantize(Decimal('1.00'), rounding=ROUND_UP)
         if internals['FVB'] > internals['HFVB']:
             internals['FVB'] = internals['HFVB']
         if internals['FVB'] > internals['ZVBEZJ']:
             internals['FVB'] = internals['ZVBEZJ']
-        internals['FVBSO'] = Decimal(internals['FVB'] + internals['VBEZBSO'] * internals['TAB1'][internals['J']] / 100).quantize(Decimal('1.00'), rounding=ROUND_UP)
+        internals['FVBSO'] = Decimal(internals['FVB'] + internals['VBEZBSO'] * internals['TAB1'][internals['J']] / Decimal(100)).quantize(Decimal('1.00'), rounding=ROUND_UP)
         if internals['FVBSO'] > internals['TAB2'][internals['J']]:
             internals['FVBSO'] = internals['TAB2'][internals['J']]
-        internals['HFVBZSO'] = (internals['VBEZB'] + internals['VBEZBSO']) / 100 - internals['FVBSO']
-        internals['FVBZSO'] = Decimal(internals['FVBZ'] + internals['VBEZBSO'] / 100).quantize(Decimal('1.'), rounding=ROUND_UP)
+        internals['HFVBZSO'] = (internals['VBEZB'] + internals['VBEZBSO']) / Decimal(100) - internals['FVBSO']
+        internals['FVBZSO'] = Decimal(internals['FVBZ'] + internals['VBEZBSO'] / Decimal(100)).quantize(Decimal('1.'), rounding=ROUND_UP)
         if internals['FVBZSO'] > internals['HFVBZSO']:
             internals['FVBZSO'] = Decimal(internals['HFVBZSO']).quantize(Decimal('1.'), rounding=ROUND_UP)
         if internals['FVBZSO'] > internals['TAB3'][internals['J']]:
             internals['FVBZSO'] = internals['TAB3'][internals['J']]
-        internals['HFVBZ'] = internals['VBEZB'] / 100 - internals['FVB']
+        internals['HFVBZ'] = internals['VBEZB'] / Decimal(100) - internals['FVB']
         if internals['FVBZ'] > internals['HFVBZ']:
             internals['FVBZ'] = Decimal(internals['HFVBZ']).quantize(Decimal('1.'), rounding=ROUND_UP)
     mre4alte(inputs, internals)
@@ -236,28 +236,28 @@ def mre4alte(inputs, internals):
 def mre4abz(inputs, internals):
     ''' Ermittlung des Jahresarbeitslohns nach Abzug der Freibeträge '''
     internals['ZRE4'] = internals['ZRE4J'] - internals['FVB'] - internals['ALTE'] - internals['JLFREIB'] + internals['JLHINZU']
-    if internals['ZRE4'] < 0:
-        internals['ZRE4'] = 0
+    if internals['ZRE4'] < Decimal(0):
+        internals['ZRE4'] = Decimal(0)
     internals['ZRE4VP'] = internals['ZRE4J']
     if internals['KENNVMT'] == 2:
-        internals['ZRE4VP'] = internals['ZRE4VP'] - inputs['ENTSCH'] / 100
+        internals['ZRE4VP'] = internals['ZRE4VP'] - inputs['ENTSCH'] / Decimal(100)
     internals['ZVBEZ'] = internals['ZVBEZJ'] - internals['FVB']
-    if internals['ZVBEZ'] < 0:
-        internals['ZVBEZ'] = 0
+    if internals['ZVBEZ'] < Decimal(0):
+        internals['ZVBEZ'] = Decimal(0)
 
 
 def mberech(inputs, internals, outputs):
     ''' Berechnung für laufende Lohnzahlungszeiträume '''
     mztabfb(inputs, internals)
-    outputs['VFRB'] = (internals['ANP'] + internals['FVB'] + internals['FVBZ']) * 100
+    outputs['VFRB'] = (internals['ANP'] + internals['FVB'] + internals['FVBZ']) * Decimal(100)
     mlstjahr(inputs, internals)
-    outputs['WVFRB'] = (internals['ZVE'] - internals['GFB']) * 100
-    if outputs['WVFRB'] < 0:
-        outputs['WVFRB'] = 0
+    outputs['WVFRB'] = (internals['ZVE'] - internals['GFB']) * Decimal(100)
+    if outputs['WVFRB'] < Decimal(0):
+        outputs['WVFRB'] = Decimal(0)
     internals['LSTJAHR'] = internals['ST'] * inputs['F']
     uplstlzz(inputs, internals, outputs)
     upvkvlzz(inputs, internals, outputs)
-    if inputs['ZKF'] > 0:
+    if inputs['ZKF'] > Decimal(0):
         internals['ZTABFB'] = internals['ZTABFB'] + internals['KFB']
         mre4abz(inputs, internals)
         mlstjahr(inputs, internals)
@@ -269,45 +269,45 @@ def mberech(inputs, internals, outputs):
 
 def mztabfb(inputs, internals):
     ''' Ermittlung der festen Tabellenfreibeträge '''
-    internals['ANP'] = 0
-    if internals['ZVBEZ'] >= 0:
+    internals['ANP'] = Decimal(0)
+    if internals['ZVBEZ'] >= Decimal(0):
         if internals['ZVBEZ'] < internals['FVBZ']:
             internals['FVBZ'] = internals['ZVBEZ']
     if inputs['STKL'] < 6:
-        if internals['ZVBEZ'] > 0:
-            if (internals['ZVBEZ'] - internals['FVBZ']) < 102:
+        if internals['ZVBEZ'] > Decimal(0):
+            if (internals['ZVBEZ'] - internals['FVBZ']) < Decimal(102):
                 internals['ANP'] = Decimal(internals['ZVBEZ'] - internals['FVBZ']).quantize(Decimal('1.'), rounding=ROUND_UP)
             else:
                 internals['ANP'] = Decimal(102)
     else:
-        internals['FVBZ'] = 0
-        internals['FVBZSO'] = 0
+        internals['FVBZ'] = Decimal(0)
+        internals['FVBZSO'] = Decimal(0)
     if inputs['STKL'] < 6:
         if internals['ZRE4'] > internals['ZVBEZ']:
-            if (internals['ZRE4'] - internals['ZVBEZ']) < 1000:
+            if (internals['ZRE4'] - internals['ZVBEZ']) < Decimal(1000):
                 internals['ANP'] = Decimal(internals['ANP'] + internals['ZRE4'] - internals['ZVBEZ']).quantize(Decimal('1.'), rounding=ROUND_UP)
             else:
                 internals['ANP'] = internals['ANP'] + Decimal(1000)
     internals['KZTAB'] = 1
     if inputs['STKL'] == 1:
-        internals['SAP'] = 36
-        internals['KFB'] = inputs['ZKF'] * 7620
+        internals['SAP'] = Decimal(36)
+        internals['KFB'] = inputs['ZKF'] * Decimal(7620)
     elif inputs['STKL'] == 2:
-        internals['EFA'] = 1908
-        internals['SAP'] = 36
-        internals['KFB'] = inputs['ZKF'] * 7620
+        internals['EFA'] = Decimal(1908)
+        internals['SAP'] = Decimal(36)
+        internals['KFB'] = inputs['ZKF'] * Decimal(7620)
     elif inputs['STKL'] == 3:
         internals['KZTAB'] = 2
-        internals['SAP'] = 36
-        internals['KFB'] = inputs['ZKF'] * 7620
+        internals['SAP'] = Decimal(36)
+        internals['KFB'] = inputs['ZKF'] * Decimal(7620)
     elif inputs['STKL'] == 4:
-        internals['SAP'] = 36
-        internals['KFB'] = inputs['ZKF'] * 3810
+        internals['SAP'] = Decimal(36)
+        internals['KFB'] = inputs['ZKF'] * Decimal(3810)
     elif inputs['STKL'] == 5:
-        internals['SAP'] = 36
-        internals['KFB'] = 0
+        internals['SAP'] = Decimal(36)
+        internals['KFB'] = Decimal(0)
     else:
-        internals['KFB'] = 0
+        internals['KFB'] = Decimal(0)
     internals['ZTABFB'] = internals['EFA'] + internals['ANP'] + internals['SAP'] + internals['FVBZ']
 
 
@@ -318,17 +318,17 @@ def mlstjahr(inputs, internals):
         internals['ZVE'] = internals['ZRE4'] - internals['ZTABFB'] - internals['VSP']
         upmlst(inputs, internals)
     else:
-        internals['ZVE'] = internals['ZRE4'] - internals['ZTABFB'] - internals['VSP'] - internals['VMT'] / 100 - internals['VKAPA'] / 100
+        internals['ZVE'] = internals['ZRE4'] - internals['ZTABFB'] - internals['VSP'] - inputs['VMT'] / Decimal(100) - inputs['VKAPA'] / Decimal(100)
         if internals['ZVE'] < 0:
-            internals['ZVE'] = (internals['ZVE'] + internals['VMT'] / 100 - internals['VKAPA'] / 100) / 5
+            internals['ZVE'] = (internals['ZVE'] + internals['VMT'] / Decimal(100) - internals['VKAPA'] / Decimal(100)) / Decimal(5)
             upmlst(inputs, internals)
-            internals['ST'] = internals['ST'] * 5
+            internals['ST'] = internals['ST'] * Decimal(5)
         else:
             upmlst(inputs, internals)
             internals['STOVMT'] = internals['ST']
-            internals['ZVE'] = internals['ZVE'] + Decimal(inputs['VMT'] + inputs['VKAPA']) / 500
+            internals['ZVE'] = internals['ZVE'] + Decimal(inputs['VMT'] + inputs['VKAPA']) / Decimal(500)
             upmlst(inputs, internals)
-            internals['ST'] = (internals['ST'] - internals['STOVMT']) * 5 + internals['STOVMT']
+            internals['ST'] = (internals['ST'] - internals['STOVMT']) * Decimal(5) + internals['STOVMT']
 
 
 def upvkvlzz(inputs, internals, outputs):
@@ -341,30 +341,30 @@ def upvkvlzz(inputs, internals, outputs):
 
 def upvkv(inputs, internals):
     ''' Ermittlung der Jahreswertes der berücksichtigten privaten Kranken- und Pflegeversicherungsbeiträge '''
-    if inputs['PKV'] > 0:
+    if inputs['PKV'] > Decimal(0):
         if internals['VSP2'] > internals['VSP3']:
-            internals['VKV'] = internals['VSP2'] * 100
+            internals['VKV'] = internals['VSP2'] * Decimal(100)
         else:
-            internals['VKV'] = internals['VSP3'] * 100
+            internals['VKV'] = internals['VSP3'] * Decimal(100)
     else:
-        internals['VKV'] = 0
+        internals['VKV'] = Decimal(0)
 
 
 def uplstlzz(inputs, internals, outputs):
     ''' Ermittlung des Anteils der Jahreslohnsteuer für den Lohnzahlungszeitraum '''
-    internals['JW'] = internals['LSTJAHR'] * 100
+    internals['JW'] = internals['LSTJAHR'] * Decimal(100)
     upanteil(inputs, internals)
     outputs['LSTLZZ'] = internals['ANTEIL1']
 
 
 def upmlst(inputs, internals):
     ''' Berechnung der Lohnsteuer '''
-    if internals['ZVE'] < 1:
-        internals['ZVE'] = 0
-        internals['X'] = 0
+    if internals['ZVE'] < Decimal(1):
+        internals['ZVE'] = Decimal(0)
+        internals['X'] = Decimal(0)
     else:
         internals['X'] = Decimal(internals['ZVE'] / internals['KZTAB']).quantize(Decimal('1.'), rounding=ROUND_DOWN)
-    if inputs['STKL'] < 5:
+    if inputs['STKL'] < Decimal(5):
         uptab19(inputs, internals)
     else:
         mst5_6(inputs, internals)
@@ -374,7 +374,7 @@ def upevp(inputs, internals):
     ''' Ermittlung der Vorsorgepauschale '''
     # Teilbetrag für die Rentenversicherung
     if inputs['KRV'] > 1:
-        internals['VSP1'] = 0
+        internals['VSP1'] = Decimal(0)
     else:
         if internals['ZRE4VP'] > internals['BBGRV']:
             internals['ZRE4VP'] = internals['BBGRV']
@@ -399,12 +399,12 @@ def mvsp(inputs, internals):
     ''' Vorsorgepauschale - Vergleichsberechung zur Mindestvorsorgepauschale '''
     if internals['ZRE4VP'] > internals['BBGKVPV']:
         internals['ZRE4VP'] = internals['BBGKVPV']
-    if inputs['PKV'] > 0:
+    if inputs['PKV'] > Decimal(0):
         # Teilbetrag für die private Basiskranken- und Pflege-Pflichtversicherung
         if inputs['STKL'] == 6:
-            internals['VSP3'] = 0
+            internals['VSP3'] = Decimal(0)
         else:
-            internals['VSP3'] = inputs['PKPV'] * 12 / 100
+            internals['VSP3'] = inputs['PKPV'] * Decimal(12) / Decimal(100)
             if inputs['PKV'] == 2:
                 internals['VSP3'] = internals['VSP3'] - internals['ZRE4VP'] * (internals['KVSATZAG'] + internals['PVSATZAG'])
     else:
@@ -457,21 +457,21 @@ def msolz(inputs, internals, outputs):
     ''' Ermittlung des Solidaritätszuschlags '''
     internals['SOLZFREI'] = internals['SOLZFREI'] * internals['KZTAB']
     if internals['JBMG'] > internals['SOLZFREI']:
-        internals['SOLZJ'] = Decimal(internals['JBMG'] * Decimal(5.5) / 100).quantize(Decimal('1.00'), rounding=ROUND_DOWN)
-        internals['SOLZMIN'] = (internals['JBMG'] - internals['SOLZFREI']) * 20 / 100
+        internals['SOLZJ'] = Decimal(internals['JBMG'] * Decimal(5.5) / Decimal(100)).quantize(Decimal('1.00'), rounding=ROUND_DOWN)
+        internals['SOLZMIN'] = (internals['JBMG'] - internals['SOLZFREI']) * Decimal(20) / Decimal(100)
         if internals['SOLZMIN'] < internals['SOLZJ']:
             internals['SOLZJ'] = internals['SOLZMIN']
-        internals['JW'] = internals['SOLZJ'] * 100
+        internals['JW'] = internals['SOLZJ'] * Decimal(100)
         upanteil(inputs, internals)
         outputs['SOLZLZZ'] = internals['ANTEIL1']
     else:
-        outputs['SOLZLZZ'] = 0
+        outputs['SOLZLZZ'] = Decimal(0)
     if inputs['R'] > 0:
-        internals['JW'] = internals['JBMG'] * 100
+        internals['JW'] = internals['JBMG'] * Decimal(100)
         upanteil(inputs, internals)
         outputs['BK'] = internals['ANTEIL1']
     else:
-        outputs['BK'] = 0
+        outputs['BK'] = Decimal(0)
 
 
 def upanteil(inputs, internals):
@@ -479,11 +479,11 @@ def upanteil(inputs, internals):
     if inputs['LZZ'] == 1:
         internals['ANTEIL1'] = internals['JW']
     elif inputs['LZZ'] == 2:
-        internals['ANTEIL1'] = Decimal(internals['JW'] / 12).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+        internals['ANTEIL1'] = Decimal(internals['JW'] / Decimal(12)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
     elif inputs['LZZ'] == 3:
-        internals['ANTEIL1'] = Decimal(internals['JW'] * 7 / 360).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+        internals['ANTEIL1'] = Decimal(internals['JW'] * Decimal(7) / Decimal(360)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
     else:
-        internals['ANTEIL1'] = Decimal(internals['JW'] / 360).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+        internals['ANTEIL1'] = Decimal(internals['JW'] / Decimal(360)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
 
 
 def msonst(inputs, internals, outputs):
@@ -491,35 +491,35 @@ def msonst(inputs, internals, outputs):
     inputs['LZZ'] = 1
     if inputs['ZMVB'] == 0:
         inputs['ZMVB'] = 12
-    if inputs['SONSTB'] == 0:
-        outputs['VKVSONST'] = 0
-        internals['LSTSO'] = 0
-        outputs['STS'] = 0
-        outputs['SOLZS'] = 0
-        outputs['BKS'] = 0
+    if inputs['SONSTB'] == Decimal(0):
+        outputs['VKVSONST'] = Decimal(0)
+        internals['LSTSO'] = Decimal(0)
+        outputs['STS'] = Decimal(0)
+        outputs['SOLZS'] = Decimal(0)
+        outputs['BKS'] = Decimal(0)
     else:
         mosonst(inputs, internals)
         upvkv(inputs, internals)
         outputs['VKVSONST'] = internals['VKV']
-        internals['ZRE4J'] = (inputs['JRE4'] + inputs['SONSTB']) / 100
-        internals['ZVBEZJ'] = (inputs['JVBEZ'] + inputs['VBS']) / 100
+        internals['ZRE4J'] = (inputs['JRE4'] + inputs['SONSTB']) / Decimal(100)
+        internals['ZVBEZJ'] = (inputs['JVBEZ'] + inputs['VBS']) / Decimal(100)
         internals['VBEZBSO'] = inputs['STERBE']
         mre4sonst(inputs, internals)
         mlstjahr(inputs, internals)
         outputs['WVFRBM'] = (internals['ZVE'] - internals['GFB']) * Decimal(100)
-        if outputs['WVFRBM'] < 0:
-            outputs['WVFRBM'] = 0
+        if outputs['WVFRBM'] < Decimal(0):
+            outputs['WVFRBM'] = Decimal(0)
         upvkv(inputs, internals)
         outputs['VKVSONST'] = internals['VKV']  - outputs['VKVSONST']
         internals['LSTSO'] = internals['ST'] * Decimal(100)
         outputs['STS'] = Decimal((internals['LSTSO'] - internals['LSTOSO']) * inputs['F']).quantize(Decimal('1.'), rounding=ROUND_DOWN)
-        if outputs['STS'] < 0:
-            outputs['STS'] = 0
+        if outputs['STS'] < Decimal(0):
+            outputs['STS'] = Decimal(0)
         outputs['SOLZS'] = Decimal(outputs['STS'] * Decimal(5.5) / Decimal(100)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
-        if inputs['R'] > 0:
+        if inputs['R'] > Decimal(0):
             outputs['BKS'] = outputs['STS']
         else:
-            outputs['BKS'] = 0
+            outputs['BKS'] = Decimal(0)
 
 
 def mvmt(inputs, internals, outputs):
@@ -529,40 +529,41 @@ def mvmt(inputs, internals, outputs):
     '''
     if inputs['VKAPA'] < 0:
         inputs['VKAPA'] = 0
-    if inputs['VMT'] + inputs['VKAPA'] > 0:
-        if internals['LSTSO'] == 0:
+    if inputs['VMT'] + inputs['VKAPA'] > Decimal(0):
+        if internals['LSTSO'] == Decimal(0):
             mosonst(inputs, internals)
             internals['LST1'] = internals['LSTOSO']
         else:
             internals['LST1'] = internals['LSTSO']
         internals['VBEZBSO'] = inputs['STERBE'] + inputs['VKAPA']
-        internals['ZRE4J'] = (inputs['JRE4'] + internals['SONSTB'] + internals['VMT'] + inputs['VKAPA']) / Decimal(100)
+        internals['ZRE4J'] = (inputs['JRE4'] + inputs['SONSTB'] + inputs['VMT'] + inputs['VKAPA']) / Decimal(100)
+        internals['ZVBEZJ'] = (inputs['JVBEZ'] +  inputs['VBS'] + inputs['VKAPA']) / Decimal(100)
         internals['KENNVMT'] = 2
         mre4sonst(inputs, internals)
         mlstjahr(inputs,internals)
         internals['LST3'] = internals['ST'] * Decimal(100)
         mre4abz(inputs, internals)
-        internals['ZRE4VP'] = internals['ZRE4VP'] - internals['JRE4ENT'] / Decimal(100) - internals['SONSTENT'] / Decimal(100)
+        internals['ZRE4VP'] = internals['ZRE4VP'] - inputs['JRE4ENT'] / Decimal(100) - inputs['SONSTENT'] / Decimal(100)
         internals['KENNVMT'] = 1
-        mlstjahr()
+        mlstjahr(inputs, internals)
         internals['LST2'] = internals['ST'] * Decimal(100)
         outputs['STV'] = internals['LST2'] - internals['LST1']
         internals['LST3'] = internals['LST3'] - internals['LST1']
         if internals['LST3'] < outputs['STV']:
             outputs['STV'] = internals['LST3']
-        if outputs['STV'] < 0:
-            outputs['STV'] = 0
+        if outputs['STV'] < Decimal(0):
+            outputs['STV'] = Decimal(0)
         else:
             outputs['STV'] = Decimal(outputs['STV'] * inputs['F']).quantize(Decimal('1.'), rounding=ROUND_DOWN)
-        outputs['SOLZV'] = outputs['STV'] * Decimal(5.5) / Decimal(100)
-        if internals['R'] > 0:
+        outputs['SOLZV'] = Decimal(outputs['STV'] * Decimal(5.5) / Decimal(100)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
+        if inputs['R'] > Decimal(0):
             outputs['BKV'] = outputs['STV']
         else:
-            outputs['BKV'] = 0
+            outputs['BKV'] = Decimal(0)
     else:
-        outputs['STV'] = 0
-        outputs['SOLZV'] = 0
-        outputs['BKV'] = 0
+        outputs['STV'] = Decimal(0)
+        outputs['SOLZV'] = Decimal(0)
+        outputs['BKV'] = Decimal(0)
 
 
 def mosonst(inputs, internals):
@@ -581,8 +582,8 @@ def mosonst(inputs, internals):
     internals['VFRBS1'] = (internals['ANP'] + internals['FVB'] + internals['FVBZ']) * Decimal(100)
     mlstjahr(inputs, internals)
     internals['WVFRBO'] = (internals['ZVE'] - internals['GFB']) * Decimal(100)
-    if internals['WVFRBO'] < 0:
-        internals['WVFRBO'] = 0
+    if internals['WVFRBO'] < Decimal(0):
+        internals['WVFRBO'] = Decimal(0)
     internals['LSTOSO'] = internals['ST']  * Decimal(100)
 
 
@@ -603,19 +604,19 @@ def mre4sonst(inputs, internals):
 def uptab19(inputs, internals):
     ''' Ermittlung der tariflichen Einkommensteuer '''
     if internals['X'] < internals['GFB'] + 1:
-        internals['ST'] = 0
-    elif internals['X'] < 14255:
-        internals['Y'] = (internals['X'] - internals['GFB']) / 10000
+        internals['ST'] = Decimal(0)
+    elif internals['X'] < Decimal(14255):
+        internals['Y'] = (internals['X'] - internals['GFB']) / Decimal(10000)
         internals['RW'] = internals['Y'] * Decimal(980.14)
-        internals['RW'] = internals['RW'] + 1400
+        internals['RW'] = internals['RW'] + Decimal(1400)
         internals['ST'] = Decimal(internals['RW'] * internals['Y']).quantize(Decimal('1.'), rounding=ROUND_DOWN)
-    elif internals['X'] < 55961:
-        internals['Y'] = (internals['X'] - 14254) / 10000
+    elif internals['X'] < Decimal(55961):
+        internals['Y'] = (internals['X'] - Decimal(14254)) / Decimal(10000)
         internals['RW'] = internals['Y'] * Decimal(216.16)
-        internals['RW'] = internals['RW'] + 2397
+        internals['RW'] = internals['RW'] + Decimal(2397)
         internals['RW'] = internals['RW'] * internals['Y']
         internals['ST'] = Decimal(internals['RW'] + Decimal(965.58)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
-    elif internals['X'] < 265327:
+    elif internals['X'] < Decimal(265327):
         internals['ST'] = Decimal(internals['X'] * Decimal(0.42) - Decimal(8780.90)).quantize(Decimal('1.'), rounding=ROUND_DOWN)
     else:
         internals['ST'] = Decimal(internals['X'] * Decimal(0.45) - Decimal(16740.68)).quantize(Decimal('1.'), rounding=ROUND_DOWN)

@@ -825,7 +825,7 @@ def test_sonstige_bezuegen_1():
         'KRV': 0,                   # Gesetzliche RV -> BBG West
         'PKV': 0,                   # gesetzlich krankenversicherte Arbeitnehmer        
         'LZZ': 2,                   # Lohnzahlungszeitraum: Monat
-        'R': 1,                     # Religionsgemeinschaft
+        'R': 1,                     # Kirchensteuerpflichtig
         'KVZ': Decimal(1.1) ,       # Zusatzbeitragssatz Krankenkasse
         'PVZ': 1,                   # Zuschlag zur Pflegeversicherung für Kinderlose
     }
@@ -874,7 +874,7 @@ def test_sonstige_bezuegen_2():
         'KRV': 0,                   # Gesetzliche RV -> BBG West
         'PKV': 0,                   # gesetzlich krankenversicherte Arbeitnehmer        
         'LZZ': 2,                   # Lohnzahlungszeitraum: Monatlich
-        'R': 1,                     # Religionsgemeinschaft
+        'R': 1,                     # Kirchensteuerpflichtig
         'KVZ': Decimal(1.1) ,       # Zusatzbeitragssatz Krankenkasse
         'PVZ': 1,                   # Zuschlag zur Pflegeversicherung für Kinderlose
     }
@@ -891,14 +891,14 @@ def test_versorgungsbezuege():
     # arrange
     params = {
         'SONSTB': Decimal(2000000),  # Sonstige Bezüge
-        'VBS': Decimal(100000),     # darin enthaltene Versorgungsbezüge
-        'STKL': 1,                  # Steuerklasse
-        'KRV': 0,                   # Gesetzliche RV -> BBG West
-        'PKV': 0,                   # gesetzlich krankenversicherte Arbeitnehmer        
-        'LZZ': 2,                   # Lohnzahlungszeitraum: Monat
-        'R': 1,                     # Religionsgemeinschaft
-        'KVZ': Decimal(1.1) ,       # Zusatzbeitragssatz Krankenkasse
-        'PVZ': 1,                   # Zuschlag zur Pflegeversicherung für Kinderlose
+        'VBS': Decimal(100000),      # darin enthaltene Versorgungsbezüge
+        'STKL': 1,                   # Steuerklasse
+        'KRV': 0,                    # Gesetzliche RV -> BBG West
+        'PKV': 0,                    # gesetzlich krankenversicherte Arbeitnehmer        
+        'LZZ': 2,                    # Lohnzahlungszeitraum: Monat
+        'R': 1,                      # Kirchensteuerpflichtig
+        'KVZ': Decimal(1.1) ,        # Zusatzbeitragssatz Krankenkasse
+        'PVZ': 1,                    # Zuschlag zur Pflegeversicherung für Kinderlose
     }
     # act
     actual = calculate_wage_tax(params)
@@ -907,9 +907,29 @@ def test_versorgungsbezuege():
     assert actual['SOLZS'] == 7034
 
 
+def test_mehrjaehrige_taetigkeit():
+    # arrange
+    params = {
+        'JRE4': Decimal(5000000),   # Maßgebenden Jahresarbeitslohn 
+        'VMT': Decimal(2000000),    # Einkünftige aus mehrjähriger Tätigkeit
+        'STKL': 1,                  # Steuerklasse
+        'KRV': 0,                   # Gesetzliche RV -> BBG West
+        'PKV': 0,                   # gesetzlich krankenversicherte Arbeitnehmer        
+        'LZZ': 2,                   # Lohnzahlungszeitraum: Monat
+        'R': 1,                     # Kirchensteuerpflichtig
+        'KVZ': Decimal(1.1) ,       # Zusatzbeitragssatz Krankenkasse
+        'PVZ': 1,                   # Zuschlag zur Pflegeversicherung für Kinderlose
+        'KENNVMT': 1,               # mehrjährige Tätigkeit
+    }
+    # act
+    actual = calculate_wage_tax(params)
+    # assert
+    assert actual['STV'] == 645900  # Lohnsteuer für mehrjährige Tätigkeit 
+    assert actual['SOLZV'] == 35524 
 
+# https://www.steuertipps.de/service/rechner/lohnsteuer-rechner-fuer-sonstige-bezuege/
 # todo: test alter > 65
-# todo: test mehrjährige Tätigkeit
+
 # todo: test Kinderfreibetrag
 
 
